@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 interface GameStats {
@@ -21,11 +21,7 @@ export default function ProfileScreen() {
     winRate: 0,
   });
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!profile) return;
 
     const { data, error } = await supabase
@@ -43,7 +39,11 @@ export default function ProfileScreen() {
         winRate: total > 0 ? Math.round((correct / total) * 100) : 0,
       });
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const getRankTier = (elo: number): { name: string; color: string } => {
     if (elo >= 2000) return { name: "GRANDMASTER", color: "#ff00aa" };
@@ -58,22 +58,26 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background">
+      <LinearGradient
+        colors={["#fff3f6", "#ffffff"]}
+        className="absolute inset-0"
+      />
       {/* Header */}
       <View className="pt-16 pb-6 px-6 flex-row justify-between items-center">
         <Text className="text-text-primary text-2xl font-bold">Profile</Text>
         <Pressable
           onPress={signOut}
-          className="bg-surface px-4 py-2 rounded-lg border border-danger/30"
+          className="bg-surface-light px-4 py-2 rounded-xl border border-border-subtle active:scale-95"
         >
           <Text className="text-danger font-semibold text-sm">Sign Out</Text>
         </Pressable>
       </View>
 
       {/* Profile Card */}
-      <View className="mx-6 bg-surface rounded-2xl overflow-hidden border border-surface-light">
+      <View className="mx-6 bg-surface rounded-3xl overflow-hidden border border-border-subtle shadow-glow">
         {/* Gradient Header */}
         <LinearGradient
-          colors={["#1a1a24", "#0a0a0f"]}
+          colors={["#ffdce6", "#f7f4fb"]}
           className="h-20"
         />
 
@@ -83,7 +87,7 @@ export default function ProfileScreen() {
             <Ionicons
               name={profile?.gender === "female" ? "woman" : "man"}
               size={40}
-              color="#666680"
+              color="#a698b7"
             />
           </View>
         </View>
@@ -113,28 +117,28 @@ export default function ProfileScreen() {
 
       {/* Stats Grid */}
       <View className="mx-6 mt-6 flex-row space-x-4">
-        <View className="flex-1 bg-surface rounded-xl p-4 border border-surface-light">
+        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
           <Text className="text-text-secondary text-xs">ELO RATING</Text>
           <Text className="text-primary text-2xl font-bold mt-1">
             {profile?.elo_rating || 1000}
           </Text>
         </View>
-        <View className="flex-1 bg-surface rounded-xl p-4 border border-surface-light">
+        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
           <Text className="text-text-secondary text-xs">WIN RATE</Text>
-          <Text className="text-accent text-2xl font-bold mt-1">
+          <Text className="text-primary-soft text-2xl font-bold mt-1">
             {stats.winRate}%
           </Text>
         </View>
       </View>
 
       <View className="mx-6 mt-4 flex-row space-x-4">
-        <View className="flex-1 bg-surface rounded-xl p-4 border border-surface-light">
+        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
           <Text className="text-text-secondary text-xs">GAMES PLAYED</Text>
           <Text className="text-text-primary text-2xl font-bold mt-1">
             {stats.totalGames}
           </Text>
         </View>
-        <View className="flex-1 bg-surface rounded-xl p-4 border border-surface-light">
+        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
           <Text className="text-text-secondary text-xs">CORRECT</Text>
           <Text className="text-primary text-2xl font-bold mt-1">
             {stats.correctGuesses}
@@ -148,9 +152,9 @@ export default function ProfileScreen() {
           SUBSCRIPTION
         </Text>
         {profile?.is_premium ? (
-          <View className="bg-warning/10 rounded-xl p-5 border border-warning/30">
+          <View className="bg-warning/15 rounded-2xl p-5 border border-warning/30">
             <View className="flex-row items-center">
-              <Ionicons name="star" size={24} color="#ffaa00" />
+              <Ionicons name="star" size={24} color="#f6c177" />
               <View className="ml-3">
                 <Text className="text-warning font-bold text-lg">
                   TRUTH TIER
@@ -164,8 +168,8 @@ export default function ProfileScreen() {
         ) : (
           <Pressable>
             <LinearGradient
-              colors={["#1a1a24", "#12121a"]}
-              className="rounded-xl p-5 border border-muted/30"
+              colors={["#ffdce6", "#f7f4fb"]}
+              className="rounded-2xl p-5 border border-border-subtle/60"
             >
               <View className="flex-row items-center justify-between">
                 <View>
@@ -176,7 +180,7 @@ export default function ProfileScreen() {
                     Skip the AI. Match with real people only.
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#666680" />
+                <Ionicons name="chevron-forward" size={24} color="#7a6a8a" />
               </View>
             </LinearGradient>
           </Pressable>

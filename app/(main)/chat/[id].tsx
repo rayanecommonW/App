@@ -6,6 +6,7 @@ import { ChatMessage } from "@/lib/database.types";
 import { useChatStore } from "@/lib/store";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -183,6 +184,15 @@ export default function ChatScreen() {
     }
   };
 
+  const handleSurrender = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    setTimeRemaining(0);
+    endSession();
+    setShowDecisionModal(true);
+  };
+
   const renderMessage = ({ item }: { item: ChatMessage }) => (
     <ChatBubble
       content={item.content}
@@ -199,11 +209,15 @@ export default function ChatScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-background"
     >
+      <LinearGradient
+        colors={["#fff3f6", "#ffffff"]}
+        className="absolute inset-0"
+      />
       {/* Header */}
-      <View className="pt-14 pb-4 px-4 bg-surface border-b border-surface-light">
+      <View className="pt-14 pb-4 px-4 bg-surface-light/80 border-b border-border-subtle">
         <View className="flex-row items-center justify-between">
           <Pressable onPress={handleBack} className="p-2 -ml-2">
-            <Ionicons name="chevron-back" size={28} color="#666680" />
+            <Ionicons name="chevron-back" size={28} color="#a698b7" />
           </Pressable>
 
           <View className="items-center">
@@ -213,7 +227,13 @@ export default function ChatScreen() {
             <ChatTimer timeRemaining={timeRemaining} maxTime={MAX_TIME} />
           </View>
 
-          <View className="w-10" />
+          <Pressable
+            onPress={handleSurrender}
+            disabled={isSessionEnded}
+            className="px-3 py-2 rounded-full border border-primary/30 bg-primary/10 active:scale-95"
+          >
+            <Text className="text-primary font-semibold text-sm">Surrender</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -221,14 +241,14 @@ export default function ChatScreen() {
       {isSessionEnded && !showDecisionModal && (
         <Animated.View
           entering={FadeIn}
-          className="absolute inset-0 z-10 bg-background/90 items-center justify-center"
+          className="absolute inset-0 z-10 bg-background/92 items-center justify-center px-6"
         >
           <Text className="text-text-primary text-xl font-bold mb-4">
             Session Ended
           </Text>
           <Pressable
             onPress={() => setShowDecisionModal(true)}
-            className="bg-primary px-8 py-4 rounded-xl"
+            className="bg-primary px-8 py-4 rounded-2xl shadow-glow active:scale-[0.98]"
           >
             <Text className="text-background font-bold text-lg">
               Make Your Guess
@@ -252,15 +272,15 @@ export default function ChatScreen() {
       />
 
       {/* Input */}
-      <View className="absolute bottom-0 left-0 right-0 bg-surface border-t border-surface-light px-4 pt-3 pb-8">
+      <View className="absolute bottom-0 left-0 right-0 bg-surface border-t border-border-subtle px-4 pt-3 pb-8">
         <View className="flex-row items-end space-x-3">
-          <View className="flex-1 bg-surface-light rounded-2xl px-4 py-3 max-h-32">
+          <View className="flex-1 bg-surface-light/80 border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
             <TextInput
               className="text-text-primary text-base"
               placeholder={
                 isSessionEnded ? "Chat ended" : "Type a message..."
               }
-              placeholderTextColor="#666680"
+              placeholderTextColor="#a698b7"
               value={inputText}
               onChangeText={setInputText}
               multiline
@@ -274,15 +294,15 @@ export default function ChatScreen() {
             disabled={!inputText.trim() || isSending || isSessionEnded}
             className={`w-12 h-12 rounded-full items-center justify-center ${
               inputText.trim() && !isSessionEnded
-                ? "bg-primary"
-                : "bg-surface-light"
+                ? "bg-primary shadow-glow"
+                : "bg-surface-light/80 border border-border-subtle"
             }`}
           >
             <Ionicons
               name="send"
               size={20}
               color={
-                inputText.trim() && !isSessionEnded ? "#0a0a0f" : "#666680"
+                inputText.trim() && !isSessionEnded ? "#0c0a12" : "#a698b7"
               }
             />
           </Pressable>

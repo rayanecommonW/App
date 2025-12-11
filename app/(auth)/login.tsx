@@ -1,9 +1,9 @@
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/providers/AuthProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -35,25 +35,31 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-background"
     >
-      <View className="flex-1 justify-center px-8">
-        {/* Logo/Title */}
-        <View className="items-center mb-12">
-          <Text className="text-5xl font-bold text-primary mb-2">TURING</Text>
-          <Text className="text-text-secondary text-lg">
-            Can you tell the difference?
+      <LinearGradient
+        colors={["#fff3f6", "#ffffff"]}
+        className="absolute inset-0"
+      />
+
+      <View className="flex-1 justify-center px-6 py-12">
+        <View className="items-center gap-3 mb-10">
+          <View className="px-3 py-1 rounded-full bg-primary/15 border border-primary/40">
+            <Text className="text-primary text-xs font-semibold">
+              Welcome back
+            </Text>
+          </View>
+          <Text className="text-4xl font-bold text-text-primary">Turing</Text>
+          <Text className="text-text-secondary text-center px-6">
+            Sign in to keep guessing who is human and who is your charming AI.
           </Text>
         </View>
 
-        {/* Form */}
-        <View className="space-y-4">
-          <View>
-            <Text className="text-text-secondary text-sm mb-2 ml-1">
-              USERNAME
-            </Text>
+        <View className="bg-surface border border-border-subtle rounded-3xl p-5 space-y-4 shadow-md">
+          <View className="gap-2">
+            <Text className="text-text-secondary text-sm ml-1">Username</Text>
             <TextInput
-              className="bg-surface border border-muted rounded-xl px-4 py-4 text-text-primary text-base"
-              placeholder="Enter your username"
-              placeholderTextColor="#666680"
+              className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
+              placeholder="e.g. redpanda_lover"
+              placeholderTextColor="#a698b7"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -61,14 +67,12 @@ export default function LoginScreen() {
             />
           </View>
 
-          <View className="mt-4">
-            <Text className="text-text-secondary text-sm mb-2 ml-1">
-              PASSWORD
-            </Text>
+          <View className="gap-2">
+            <Text className="text-text-secondary text-sm ml-1">Password</Text>
             <TextInput
-              className="bg-surface border border-muted rounded-xl px-4 py-4 text-text-primary text-base"
+              className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
               placeholder="Enter your password"
-              placeholderTextColor="#666680"
+              placeholderTextColor="#a698b7"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -76,37 +80,26 @@ export default function LoginScreen() {
           </View>
 
           {error ? (
-            <Text className="text-danger text-sm mt-2 ml-1">{error}</Text>
+            <Text className="text-danger text-sm ml-1">{error}</Text>
           ) : null}
 
-          <Pressable
+          <Button
             onPress={handleLogin}
-            disabled={isLoading}
-            className="mt-6"
-          >
-            <LinearGradient
-              colors={["#00ff88", "#00cc6a"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              className="rounded-xl py-4 items-center"
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#0a0a0f" />
-              ) : (
-                <Text className="text-background font-bold text-lg">
-                  ENTER THE GAME
-                </Text>
-              )}
-            </LinearGradient>
-          </Pressable>
+            title={isLoading ? "Signing you in..." : "Enter the arena"}
+            variant="primary"
+            size="lg"
+            loading={isLoading}
+            className="mt-2"
+          />
         </View>
 
-        {/* Register Link */}
         <View className="flex-row justify-center mt-8">
           <Text className="text-text-secondary">New player? </Text>
           <Link href="/(auth)/register" asChild>
             <Pressable>
-              <Text className="text-primary font-semibold">Create Account</Text>
+              <Text className="text-primary font-semibold ml-1">
+                Create account
+              </Text>
             </Pressable>
           </Link>
         </View>

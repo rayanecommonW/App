@@ -13,25 +13,25 @@ export default function Card({
   ...props
 }: CardProps) {
   const variants = {
-    default: "bg-surface border border-surface-light",
-    outlined: "bg-transparent border border-muted",
-    elevated: "bg-surface",
+    default: "bg-surface border border-border-subtle",
+    outlined: "bg-transparent border border-border-subtle",
+    elevated: "bg-surface-light border border-border-subtle",
   };
 
   const elevatedStyle =
     variant === "elevated"
       ? {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+          shadowColor: "#e53955",
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.12,
+          shadowRadius: 18,
+          elevation: 10,
         }
       : {};
 
   return (
     <View
-      className={`rounded-2xl p-4 ${variants[variant]} ${className}`}
+      className={`rounded-3xl p-4 ${variants[variant]} ${className}`}
       style={elevatedStyle}
       {...props}
     >

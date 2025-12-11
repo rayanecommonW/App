@@ -1,10 +1,10 @@
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -73,29 +73,39 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-background"
     >
+      <LinearGradient
+        colors={["#fff3f6", "#ffffff"]}
+        className="absolute inset-0"
+      />
+
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 justify-center px-8 py-12">
-          <View className="items-center mb-10">
-            <Text className="text-4xl font-bold text-text-primary mb-2">
-              JOIN THE TEST
+        <View className="flex-1 justify-center px-6 py-12">
+          <View className="items-center mb-10 gap-2">
+            <View className="px-3 py-1 rounded-full bg-primary/15 border border-primary/40">
+              <Text className="text-primary text-xs font-semibold">
+                Fresh start
+              </Text>
+            </View>
+            <Text className="text-4xl font-bold text-text-primary">
+              Join the test
             </Text>
-            <Text className="text-text-secondary text-center">
-              Create your account and prove you are human
+            <Text className="text-text-secondary text-center px-4">
+              Create your account and prove you are a delightful human (or a cute AI).
             </Text>
           </View>
 
-          <View className="space-y-4">
+          <View className="space-y-4 bg-surface border border-border-subtle rounded-3xl p-5 shadow-md">
             <View>
               <Text className="text-text-secondary text-sm mb-2 ml-1">
                 USERNAME <Text className="text-danger">*</Text>
               </Text>
               <TextInput
-                className="bg-surface border border-muted rounded-xl px-4 py-4 text-text-primary text-base"
+                className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
                 placeholder="Choose a username"
-                placeholderTextColor="#666680"
+                placeholderTextColor="#a698b7"
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -108,9 +118,9 @@ export default function RegisterScreen() {
                 EMAIL <Text className="text-muted">(optional)</Text>
               </Text>
               <TextInput
-                className="bg-surface border border-muted rounded-xl px-4 py-4 text-text-primary text-base"
+                className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
                 placeholder="Enter your email"
-                placeholderTextColor="#666680"
+                placeholderTextColor="#a698b7"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -123,9 +133,9 @@ export default function RegisterScreen() {
                 PASSWORD <Text className="text-danger">*</Text>
               </Text>
               <TextInput
-                className="bg-surface border border-muted rounded-xl px-4 py-4 text-text-primary text-base"
+                className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
                 placeholder="Create a password"
-                placeholderTextColor="#666680"
+                placeholderTextColor="#a698b7"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -139,10 +149,10 @@ export default function RegisterScreen() {
               <View className="flex-row space-x-3">
                 <Pressable
                   onPress={() => setGender("male")}
-                  className={`flex-1 py-4 rounded-xl border-2 items-center ${
+                  className={`flex-1 py-4 rounded-2xl border-2 items-center ${
                     gender === "male"
                       ? "border-primary bg-primary/10"
-                      : "border-muted bg-surface"
+                      : "border-border-subtle bg-surface"
                   }`}
                 >
                   <Text
@@ -155,16 +165,16 @@ export default function RegisterScreen() {
                 </Pressable>
                 <Pressable
                   onPress={() => setGender("female")}
-                  className={`flex-1 py-4 rounded-xl border-2 items-center ${
+                  className={`flex-1 py-4 rounded-2xl border-2 items-center ${
                     gender === "female"
-                      ? "border-secondary bg-secondary/10"
-                      : "border-muted bg-surface"
+                      ? "border-primary-soft bg-primary-soft/10"
+                      : "border-border-subtle bg-surface"
                   }`}
                 >
                   <Text
                     className={`font-semibold text-lg ${
                       gender === "female"
-                        ? "text-secondary"
+                        ? "text-primary-soft"
                         : "text-text-secondary"
                     }`}
                   >
@@ -178,30 +188,14 @@ export default function RegisterScreen() {
               <Text className="text-danger text-sm mt-2 ml-1">{error}</Text>
             ) : null}
 
-            <Pressable
+            <Button
               onPress={handleRegister}
-              disabled={isLoading}
-              className="mt-6"
-            >
-              <LinearGradient
-                colors={
-                  gender === "female"
-                    ? ["#ff00aa", "#cc0088"]
-                    : ["#00ff88", "#00cc6a"]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                className="rounded-xl py-4 items-center"
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#0a0a0f" />
-                ) : (
-                  <Text className="text-background font-bold text-lg">
-                    CREATE ACCOUNT
-                  </Text>
-                )}
-              </LinearGradient>
-            </Pressable>
+              title={isLoading ? "Creating account..." : "Create account"}
+              variant="primary"
+              size="lg"
+              loading={isLoading}
+              className="mt-2"
+            />
           </View>
 
           <View className="flex-row justify-center mt-8">
@@ -224,10 +218,10 @@ export default function RegisterScreen() {
         <View className="flex-1 bg-black/90 items-center justify-center px-6">
           <Animated.View
             entering={ZoomIn.duration(400)}
-            className="bg-surface rounded-3xl p-8 w-full max-w-sm items-center border border-surface-light"
+            className="bg-surface rounded-3xl p-8 w-full max-w-sm items-center border border-border-subtle"
           >
             <View className="w-20 h-20 rounded-full bg-primary/20 items-center justify-center mb-6">
-              <Ionicons name="checkmark-circle" size={50} color="#00ff88" />
+              <Ionicons name="checkmark-circle" size={50} color="#ff5c7c" />
             </View>
 
             <Text className="text-text-primary text-2xl font-bold text-center mb-2">
@@ -240,10 +234,10 @@ export default function RegisterScreen() {
 
             <Pressable onPress={handleGoToLogin} className="w-full">
               <LinearGradient
-                colors={["#00ff88", "#00cc6a"]}
+                colors={["#ff5c7c", "#ff87a4"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                className="rounded-xl py-4 items-center"
+                className="rounded-2xl py-4 items-center shadow-glow"
               >
                 <Text className="text-background font-bold text-lg">
                   GO TO LOGIN

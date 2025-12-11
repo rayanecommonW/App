@@ -2,3 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary;
+    font-family: system-ui, -apple-system, "Inter", "SF Pro Display", sans-serif;
+  }
+
+  * {
+    @apply selection:bg-primary-soft/30 selection:text-text-primary;
+  }
+}
+

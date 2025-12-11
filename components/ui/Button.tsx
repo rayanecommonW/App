@@ -28,9 +28,9 @@ export default function Button({
   };
 
   const sizeStyles = {
-    sm: "py-2 px-4",
-    md: "py-3 px-6",
-    lg: "py-4 px-8",
+    sm: "py-2.5 px-4 rounded-2xl",
+    md: "py-3.5 px-6 rounded-2xl",
+    lg: "py-4 px-8 rounded-3xl",
   };
 
   const textSizes = {
@@ -39,28 +39,37 @@ export default function Button({
     lg: "text-lg",
   };
 
+  const sharedPressable = `${disabled || loading ? "opacity-60" : "active:scale-[0.98]"}`;
+  const shadowGlow = {
+    shadowColor: "#e53955",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  };
+
+  const renderLabel = (colorClass: string) =>
+    loading ? (
+      <ActivityIndicator color={colorClass === "text-background" ? "#ffffff" : "#e53955"} />
+    ) : (
+      <Text className={`font-semibold ${textSizes[size]} ${colorClass}`}>{title}</Text>
+    );
+
   if (variant === "primary") {
     return (
       <Pressable
         onPress={handlePress}
         disabled={disabled || loading}
-        className={`${className} ${disabled ? "opacity-50" : ""}`}
+        className={`${sharedPressable} ${className}`}
+        style={shadowGlow}
       >
         <LinearGradient
-          colors={["#00ff88", "#00cc6a"]}
+          colors={["#e53955", "#f88ca0"]}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          className={`${sizeStyles[size]} rounded-xl items-center justify-center`}
+          end={{ x: 1, y: 1 }}
+          className={`${sizeStyles[size]} flex-row items-center justify-center`}
         >
-          {loading ? (
-            <ActivityIndicator color="#0a0a0f" />
-          ) : (
-            <Text
-              className={`text-background font-bold ${textSizes[size]}`}
-            >
-              {title}
-            </Text>
-          )}
+          {renderLabel("text-background")}
         </LinearGradient>
       </Pressable>
     );
@@ -71,23 +80,15 @@ export default function Button({
       <Pressable
         onPress={handlePress}
         disabled={disabled || loading}
-        className={`${className} ${disabled ? "opacity-50" : ""}`}
+        className={`${sharedPressable} ${className}`}
       >
         <LinearGradient
-          colors={["#ff00aa", "#cc0088"]}
+          colors={["#ffffff", "#f7f4fb"]}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          className={`${sizeStyles[size]} rounded-xl items-center justify-center`}
+          end={{ x: 1, y: 1 }}
+          className={`${sizeStyles[size]} border border-border-subtle flex-row items-center justify-center`}
         >
-          {loading ? (
-            <ActivityIndicator color="#0a0a0f" />
-          ) : (
-            <Text
-              className={`text-background font-bold ${textSizes[size]}`}
-            >
-              {title}
-            </Text>
-          )}
+          {renderLabel("text-text-primary")}
         </LinearGradient>
       </Pressable>
     );
@@ -98,17 +99,9 @@ export default function Button({
       <Pressable
         onPress={handlePress}
         disabled={disabled || loading}
-        className={`${sizeStyles[size]} rounded-xl border-2 border-primary items-center justify-center ${className} ${
-          disabled ? "opacity-50" : ""
-        }`}
+        className={`${sizeStyles[size]} border-2 border-primary flex-row items-center justify-center bg-transparent ${sharedPressable} ${className}`}
       >
-        {loading ? (
-          <ActivityIndicator color="#00ff88" />
-        ) : (
-          <Text className={`text-primary font-bold ${textSizes[size]}`}>
-            {title}
-          </Text>
-        )}
+        {renderLabel("text-primary")}
       </Pressable>
     );
   }
@@ -118,17 +111,16 @@ export default function Button({
       <Pressable
         onPress={handlePress}
         disabled={disabled || loading}
-        className={`${sizeStyles[size]} rounded-xl bg-danger/20 border border-danger items-center justify-center ${className} ${
-          disabled ? "opacity-50" : ""
-        }`}
+        className={`${sharedPressable} ${className}`}
       >
-        {loading ? (
-          <ActivityIndicator color="#ff3366" />
-        ) : (
-          <Text className={`text-danger font-bold ${textSizes[size]}`}>
-            {title}
-          </Text>
-        )}
+        <LinearGradient
+          colors={["#f56767", "#e53955"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className={`${sizeStyles[size]} flex-row items-center justify-center`}
+        >
+          {renderLabel("text-background")}
+        </LinearGradient>
       </Pressable>
     );
   }

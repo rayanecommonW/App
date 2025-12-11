@@ -13,9 +13,9 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
 
   // Determine color based on time remaining
   const getColor = () => {
-    if (progress > 0.5) return "#00ff88"; // Green
-    if (progress > 0.25) return "#ffaa00"; // Warning
-    return "#ff3366"; // Danger
+    if (progress > 0.5) return "#e53955";
+    if (progress > 0.25) return "#f6b23c";
+    return "#d7263d";
   };
 
   const isLow = timeRemaining <= 60;
@@ -43,7 +43,7 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
       </View>
 
       {/* Progress Bar */}
-      <View className="w-32 h-1 bg-surface-light rounded-full mt-2 overflow-hidden">
+      <View className="w-32 h-1.5 bg-surface-light rounded-full mt-2 overflow-hidden">
         <View
           className="h-full rounded-full"
           style={{

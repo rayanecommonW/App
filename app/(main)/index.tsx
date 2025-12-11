@@ -110,24 +110,33 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <LinearGradient
+        colors={["#fff3f6", "#ffffff"]}
+        className="absolute inset-0"
+      />
       {/* Header */}
       <View className="pt-16 pb-6 px-6 flex-row justify-between items-start">
         <View>
-          <Text className="text-primary text-3xl font-bold">TURING</Text>
+          <View className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 self-start mb-2">
+            <Text className="text-primary text-xs font-semibold">
+              Daily Playground
+            </Text>
+          </View>
+          <Text className="text-text-primary text-3xl font-bold">TURING</Text>
           <Text className="text-text-secondary mt-1">
             Real or AI? Prove your skill.
           </Text>
         </View>
         <Pressable
           onPress={signOut}
-          className="bg-surface p-2 rounded-lg border border-muted"
+          className="bg-surface-light p-2 rounded-xl border border-border-subtle active:scale-95"
         >
-          <Ionicons name="log-out-outline" size={22} color="#666680" />
+          <Ionicons name="log-out-outline" size={22} color="#a698b7" />
         </Pressable>
       </View>
 
       {/* Stats Card */}
-      <View className="mx-6 bg-surface rounded-2xl p-6 border border-surface-light">
+      <View className="mx-6 bg-surface rounded-3xl p-6 border border-border-subtle shadow-glow">
         <View className="flex-row justify-between items-center">
           <View>
             <Text className="text-text-secondary text-sm">YOUR RANK</Text>
@@ -139,7 +148,7 @@ export default function HomeScreen() {
           <View className="items-end">
             <View
               className={`px-4 py-2 rounded-full ${
-                profile?.is_premium ? "bg-warning/20" : "bg-surface-light"
+                profile?.is_premium ? "bg-warning/20" : "bg-surface-light/80"
               }`}
             >
               <Text
@@ -155,8 +164,8 @@ export default function HomeScreen() {
       </View>
 
       {/* Game Mode Info */}
-      <View className="mx-6 mt-6 bg-surface-light/50 rounded-2xl p-5 border border-muted/30">
-        <Text className="text-accent font-semibold mb-2">RANKED QUEUE</Text>
+      <View className="mx-6 mt-6 bg-surface-light/70 rounded-3xl p-5 border border-border-subtle/60">
+        <Text className="text-primary font-semibold mb-2">RANKED QUEUE</Text>
         <Text className="text-text-secondary text-sm leading-5">
           Chat with your match for 5 minutes. When time expires, decide: are you
           talking to a real person or an AI? Guess correctly to climb the ranks.
@@ -168,29 +177,29 @@ export default function HomeScreen() {
         {isSearching ? (
           <View className="items-center">
             <View className="w-32 h-32 rounded-full border-4 border-primary/30 items-center justify-center mb-6">
-              <ActivityIndicator size="large" color="#00ff88" />
+              <ActivityIndicator size="large" color="#ff5c7c" />
             </View>
             <Text className="text-text-primary text-lg font-semibold mb-2">
               {searchStatus}
             </Text>
             <Pressable onPress={cancelSearch} className="mt-4">
-              <Text className="text-danger">Cancel</Text>
+              <Text className="text-danger font-semibold">Cancel</Text>
             </Pressable>
           </View>
         ) : (
           <Animated.View style={animatedStyle}>
             <Pressable onPress={handleFindMatch}>
               <LinearGradient
-                colors={["#00ff88", "#00d4ff"]}
+                colors={["#ff5c7c", "#ff87a4"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 className="w-48 h-48 rounded-full items-center justify-center"
                 style={{
-                  shadowColor: "#00ff88",
+                  shadowColor: "#ff5c7c",
                   shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 20,
-                  elevation: 10,
+                  shadowOpacity: 0.45,
+                  shadowRadius: 24,
+                  elevation: 12,
                 }}
               >
                 <Text className="text-background text-2xl font-bold">PLAY</Text>

@@ -116,7 +116,7 @@ export default function DecisionModal({
       animationType="fade"
       statusBarTranslucent
     >
-      <View className="flex-1 bg-black/90 items-center justify-center px-6">
+      <View className="flex-1 bg-background/90 items-center justify-center px-6">
         {state === "guessing" && (
           <Animated.View
             entering={FadeInDown.duration(500)}
@@ -124,7 +124,7 @@ export default function DecisionModal({
           >
             {/* Title */}
             <View className="items-center mb-8">
-              <Text className="text-accent text-sm font-semibold tracking-widest mb-2">
+              <Text className="text-primary text-sm font-semibold tracking-widest mb-2">
                 TIME&apos;S UP
               </Text>
               <Text className="text-text-primary text-3xl font-bold text-center">
@@ -142,13 +142,13 @@ export default function DecisionModal({
                 disabled={isProcessing}
               >
                 <LinearGradient
-                  colors={["#00ff88", "#00cc6a"]}
+                  colors={["#e53955", "#f88ca0"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  className="py-5 rounded-2xl items-center"
+                  className="py-5 rounded-3xl items-center shadow-glow"
                 >
                   <View className="flex-row items-center space-x-3">
-                    <Ionicons name="person" size={24} color="#0a0a0f" />
+                    <Ionicons name="person" size={24} color="#ffffff" />
                     <Text className="text-background text-xl font-bold">
                       REAL HUMAN
                     </Text>
@@ -162,13 +162,13 @@ export default function DecisionModal({
                 className="mt-4"
               >
                 <LinearGradient
-                  colors={["#ff00aa", "#cc0088"]}
+                  colors={["#ffdce6", "#f0ecf7"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  className="py-5 rounded-2xl items-center"
+                  className="py-5 rounded-3xl items-center border border-border-subtle/60"
                 >
                   <View className="flex-row items-center space-x-3">
-                    <Ionicons name="hardware-chip" size={24} color="#0a0a0f" />
+                    <Ionicons name="hardware-chip" size={24} color="#1b102b" />
                     <Text className="text-background text-xl font-bold">
                       AI AGENT
                     </Text>
@@ -203,13 +203,13 @@ export default function DecisionModal({
             <Animated.View
               entering={ZoomIn.delay(200).duration(400)}
               className={`w-24 h-24 rounded-full items-center justify-center mb-6 ${
-                wasCorrect ? "bg-primary/20" : "bg-danger/20"
+                wasCorrect ? "bg-primary/15" : "bg-danger/15"
               }`}
             >
               <Ionicons
                 name={wasCorrect ? "checkmark-circle" : "close-circle"}
                 size={64}
-                color={wasCorrect ? "#00ff88" : "#ff3366"}
+                color={wasCorrect ? "#e53955" : "#d7263d"}
               />
             </Animated.View>
 
@@ -245,7 +245,7 @@ export default function DecisionModal({
               {!wasCorrect && (
                 <Animated.View
                   entering={FadeInUp.delay(600)}
-                  className="mt-8 bg-surface rounded-xl p-5 border border-warning/30"
+                  className="mt-8 bg-surface-light rounded-3xl p-5 border border-warning/30"
                 >
                   <Text className="text-warning font-semibold text-center">
                     Fooled by the machine?
@@ -256,8 +256,8 @@ export default function DecisionModal({
                   </Text>
                   <Pressable className="mt-4">
                     <LinearGradient
-                      colors={["#ffaa00", "#ff8800"]}
-                      className="py-3 rounded-xl items-center"
+                  colors={["#ffdce6", "#f88ca0"]}
+                      className="py-3 rounded-2xl items-center"
                     >
                       <Text className="text-background font-bold">
                         UPGRADE NOW
@@ -275,7 +275,7 @@ export default function DecisionModal({
             >
               <Pressable
                 onPress={handleClose}
-                className="bg-surface border border-muted py-4 rounded-xl items-center"
+                className="bg-surface border border-border-subtle py-4 rounded-2xl items-center active:scale-[0.99]"
               >
                 <Text className="text-text-primary font-semibold">
                   Continue

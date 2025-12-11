@@ -19,10 +19,10 @@ export default function ChatBubble({
       className={`max-w-[80%] mb-3 ${isUser ? "self-end" : "self-start"}`}
     >
       <View
-        className={`px-4 py-3 rounded-2xl ${
+        className={`px-4 py-3 rounded-3xl ${
           isUser
-            ? "bg-primary rounded-br-sm"
-            : "bg-surface-light border border-muted/30 rounded-bl-sm"
+            ? "bg-primary rounded-br-xl shadow-glow"
+            : "bg-surface border border-border-subtle rounded-bl-xl"
         }`}
       >
         <Text
@@ -35,9 +35,7 @@ export default function ChatBubble({
       </View>
       {timestamp && (
         <Text
-          className={`text-xs text-muted mt-1 ${
-            isUser ? "text-right mr-1" : "ml-1"
-          }`}
+          className={`text-xs text-muted mt-1 ${isUser ? "text-right mr-1" : "ml-1"}`}
         >
           {timestamp}
         </Text>
@@ -53,22 +51,22 @@ export function TypingIndicator() {
       entering={FadeIn.duration(200)}
       className="self-start max-w-[80%] mb-3"
     >
-      <View className="bg-surface-light border border-muted/30 rounded-2xl rounded-bl-sm px-4 py-3 flex-row items-center">
+      <View className="bg-surface border border-border-subtle rounded-3xl rounded-bl-xl px-4 py-3 flex-row items-center">
         <View className="flex-row space-x-1">
           <Animated.View
-            className="w-2 h-2 rounded-full bg-muted"
+            className="w-2 h-2 rounded-full bg-primary"
             style={{
               opacity: 0.4,
             }}
           />
           <Animated.View
-            className="w-2 h-2 rounded-full bg-muted"
+            className="w-2 h-2 rounded-full bg-primary"
             style={{
               opacity: 0.6,
             }}
           />
           <Animated.View
-            className="w-2 h-2 rounded-full bg-muted"
+            className="w-2 h-2 rounded-full bg-primary"
             style={{
               opacity: 0.8,
             }}
