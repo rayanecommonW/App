@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model profiles {
+  id             String          @id @db.Uuid
+  username       String?         @unique
+  gender         String
+  elo_rating     Int             @default(1000)
+  is_premium     Boolean         @default(false)
+  created_at     DateTime        @default(now()) @db.Timestamptz(6)
+  chat_sessions  chat_sessions[]
+
+  @@map("profiles")
+  @@index([elo_rating(sort: Desc)], map: "idx_profiles_elo")
+}
+
+model ai_personas {
+  id                 String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name               String
+  age                Int
+  bio                String
+  personality_traits Json            @default(dbgenerated("'[]'::jsonb"))
+  avatar_url         String?
+  voice_style        String?
+  chat_sessions      chat_sessions[]
+
+  @@map("ai_personas")
+}
+
+model chat_sessions {
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id       String          @db.Uuid
+  ai_persona_id String          @db.Uuid
+  started_at    DateTime        @default(now()) @db.Timestamptz(6)
+  ended_at      DateTime?       @db.Timestamptz(6)
+  message_count Int             @default(0)
+  user_guess    String?
+  was_correct   Boolean?
+  elo_change    Int?
+  user          profiles        @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "chat_sessions_user_id_fkey")
+  ai_persona    ai_personas     @relation(fields: [ai_persona_id], references: [id])
+  chat_messages chat_messages[]
+
+  @@map("chat_sessions")
+  @@index([user_id], map: "idx_chat_sessions_user_id")
+}
+
+model chat_messages {
+  id         String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  session_id String        @db.Uuid
+  role       String
+  content    String
+  created_at DateTime      @default(now()) @db.Timestamptz(6)
+  session    chat_sessions @relation(fields: [session_id], references: [id], onDelete: Cascade, map: "chat_messages_session_id_fkey")
+
+  @@map("chat_messages")
+  @@index([session_id], map: "idx_chat_messages_session_id")
+}
+
+
