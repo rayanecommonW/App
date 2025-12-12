@@ -1,15 +1,16 @@
 import Button from "@/components/ui/Button";
+import { shadowStyle } from "@/lib/shadow";
 import { useAuth } from "@/providers/AuthProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    Text,
-    TextInput,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function LoginScreen() {
@@ -36,28 +37,39 @@ export default function LoginScreen() {
       className="flex-1 bg-background"
     >
       <LinearGradient
-        colors={["#fff3f6", "#ffffff"]}
+        colors={["#fff2f6", "#ffffff"]}
         className="absolute inset-0"
       />
+      <View className="absolute -right-16 -top-10 w-44 h-44 rounded-full bg-primary/12" />
+      <View className="absolute -left-12 bottom-0 w-48 h-48 rounded-full bg-primary-soft/30" />
 
       <View className="flex-1 justify-center px-6 py-12">
-        <View className="items-center gap-3 mb-10">
-          <View className="px-3 py-1 rounded-full bg-primary/15 border border-primary/40">
-            <Text className="text-primary text-xs font-semibold">
-              Welcome back
+        <View className="items-center gap-3 mb-12">
+          <View className="px-3 py-1 rounded-full bg-primary/12 border border-border-subtle/80">
+            <Text className="text-primary text-[11px] font-semibold tracking-[0.6px]">
+              WELCOME BACK
             </Text>
           </View>
-          <Text className="text-4xl font-bold text-text-primary">Turing</Text>
+          <Text className="text-4xl font-black text-text-primary">BotRoyal</Text>
           <Text className="text-text-secondary text-center px-6">
-            Sign in to keep guessing who is human and who is your charming AI.
+            Minimal, fast, and made for thumbs. Jump back into the arena.
           </Text>
         </View>
 
-        <View className="bg-surface border border-border-subtle rounded-3xl p-5 space-y-4 shadow-md">
+        <View
+          className="bg-surface border border-border-subtle rounded-3xl p-5 space-y-4"
+          style={shadowStyle({
+            color: "#ef233c",
+            opacity: 0.06,
+            radius: 12,
+            offsetY: 10,
+            elevation: 4,
+          })}
+        >
           <View className="gap-2">
             <Text className="text-text-secondary text-sm ml-1">Username</Text>
             <TextInput
-              className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
+              className="bg-surface-light/50 border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
               placeholder="e.g. redpanda_lover"
               placeholderTextColor="#a698b7"
               value={username}
@@ -70,7 +82,7 @@ export default function LoginScreen() {
           <View className="gap-2">
             <Text className="text-text-secondary text-sm ml-1">Password</Text>
             <TextInput
-              className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
+              className="bg-surface-light/50 border border-border-subtle rounded-2xl px-4 py-4 text-text-primary text-base"
               placeholder="Enter your password"
               placeholderTextColor="#a698b7"
               value={password}
@@ -98,7 +110,7 @@ export default function LoginScreen() {
           <Link href="/(auth)/register" asChild>
             <Pressable>
               <Text className="text-primary font-semibold ml-1">
-                Create account
+                  Create account
               </Text>
             </Pressable>
           </Link>

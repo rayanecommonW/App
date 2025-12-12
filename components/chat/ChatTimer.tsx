@@ -1,3 +1,4 @@
+import { shadowStyle } from "@/lib/shadow";
 import React from "react";
 import { Text, View } from "react-native";
 
@@ -13,8 +14,8 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
 
   // Determine color based on time remaining
   const getColor = () => {
-    if (progress > 0.5) return "#e53955";
-    if (progress > 0.25) return "#f6b23c";
+    if (progress > 0.5) return "#ef233c";
+    if (progress > 0.25) return "#ffb347";
     return "#d7263d";
   };
 
@@ -27,10 +28,11 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
           className="w-3 h-3 rounded-full"
           style={{
             backgroundColor: getColor(),
-            shadowColor: getColor(),
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: isLow ? 0.8 : 0.5,
-            shadowRadius: isLow ? 8 : 4,
+            ...shadowStyle({
+              color: getColor(),
+              opacity: isLow ? 0.8 : 0.5,
+              radius: isLow ? 8 : 4,
+            }),
           }}
         />
         <Text

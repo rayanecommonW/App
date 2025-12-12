@@ -3,6 +3,7 @@ import ChatTimer from "@/components/chat/ChatTimer";
 import DecisionModal from "@/components/DecisionModal";
 import { sendMessageLocal } from "@/lib/ai";
 import { ChatMessage } from "@/lib/database.types";
+import { shadowStyle } from "@/lib/shadow";
 import { useChatStore } from "@/lib/store";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -10,13 +11,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    Text,
-    TextInput,
-    View,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
@@ -210,17 +211,32 @@ export default function ChatScreen() {
       className="flex-1 bg-background"
     >
       <LinearGradient
-        colors={["#fff3f6", "#ffffff"]}
+        colors={["#fff2f6", "#ffffff"]}
         className="absolute inset-0"
       />
+      <View className="absolute -right-16 -top-10 w-44 h-44 rounded-full bg-primary/10" />
+      <View className="absolute -left-16 bottom-28 w-40 h-40 rounded-full bg-primary-soft/25" />
+
       {/* Header */}
-      <View className="pt-14 pb-4 px-4 bg-surface-light/80 border-b border-border-subtle">
-        <View className="flex-row items-center justify-between">
-          <Pressable onPress={handleBack} className="p-2 -ml-2">
-            <Ionicons name="chevron-back" size={28} color="#a698b7" />
+      <View className="pt-14 pb-3 px-4">
+        <View
+          className="bg-surface rounded-3xl px-4 py-3 border border-border-subtle flex-row items-center justify-between"
+          style={shadowStyle({
+            color: "#ef233c",
+            opacity: 0.06,
+            radius: 10,
+            offsetY: 8,
+            elevation: 4,
+          })}
+        >
+          <Pressable
+            onPress={handleBack}
+            className="w-10 h-10 rounded-2xl bg-surface-light/90 border border-border-subtle items-center justify-center active:scale-95"
+          >
+            <Ionicons name="chevron-back" size={22} color="#ef233c" />
           </Pressable>
 
-          <View className="items-center">
+          <View className="items-center flex-1">
             <Text className="text-text-primary font-semibold text-lg">
               {persona?.name || "Match"}
             </Text>
@@ -230,9 +246,11 @@ export default function ChatScreen() {
           <Pressable
             onPress={handleSurrender}
             disabled={isSessionEnded}
-            className="px-3 py-2 rounded-full border border-primary/30 bg-primary/10 active:scale-95"
+            className={`px-4 py-2 rounded-2xl border ${
+              isSessionEnded ? "border-border-subtle bg-surface-light" : "border-primary/30 bg-primary/10"
+            } active:scale-95`}
           >
-            <Text className="text-primary font-semibold text-sm">Surrender</Text>
+            <Text className="text-primary font-semibold text-sm">End</Text>
           </Pressable>
         </View>
       </View>
@@ -264,17 +282,18 @@ export default function ChatScreen() {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{
-          padding: 16,
-          paddingBottom: 100,
+          paddingHorizontal: 16,
+          paddingBottom: 120,
+          paddingTop: 8,
         }}
         ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         showsVerticalScrollIndicator={false}
       />
 
       {/* Input */}
-      <View className="absolute bottom-0 left-0 right-0 bg-surface border-t border-border-subtle px-4 pt-3 pb-8">
+      <View className="absolute bottom-0 left-0 right-0 bg-background/95 border-t border-border-subtle px-4 pt-3 pb-8">
         <View className="flex-row items-end space-x-3">
-          <View className="flex-1 bg-surface-light/80 border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
+          <View className="flex-1 bg-surface border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
             <TextInput
               className="text-text-primary text-base"
               placeholder={
@@ -289,23 +308,26 @@ export default function ChatScreen() {
               onSubmitEditing={handleSend}
             />
           </View>
-          <Pressable
-            onPress={handleSend}
-            disabled={!inputText.trim() || isSending || isSessionEnded}
-            className={`w-12 h-12 rounded-full items-center justify-center ${
-              inputText.trim() && !isSessionEnded
-                ? "bg-primary shadow-glow"
-                : "bg-surface-light/80 border border-border-subtle"
-            }`}
-          >
-            <Ionicons
-              name="send"
-              size={20}
-              color={
-                inputText.trim() && !isSessionEnded ? "#0c0a12" : "#a698b7"
-              }
-            />
-          </Pressable>
+          {inputText.trim() && !isSessionEnded ? (
+            <Pressable
+              onPress={handleSend}
+              disabled={isSending}
+              className="w-12 h-12 rounded-full overflow-hidden active:scale-95"
+            >
+              <LinearGradient
+                colors={["#ef233c", "#ff6b6b"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="flex-1 items-center justify-center"
+              >
+                <Ionicons name="send" size={20} color="#ffffff" />
+              </LinearGradient>
+            </Pressable>
+          ) : (
+            <View className="w-12 h-12 rounded-full bg-surface border border-border-subtle items-center justify-center">
+              <Ionicons name="send" size={20} color="#c7a9b2" />
+            </View>
+          )}
         </View>
 
         {/* Message count indicator */}

@@ -1,3 +1,4 @@
+import { shadowStyle } from "@/lib/shadow";
 import { useAuthStore } from "@/lib/store";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
@@ -59,134 +60,143 @@ export default function ProfileScreen() {
   return (
     <ScrollView className="flex-1 bg-background">
       <LinearGradient
-        colors={["#fff3f6", "#ffffff"]}
+        colors={["#fff2f6", "#ffffff"]}
         className="absolute inset-0"
       />
+      <View className="absolute -right-20 -top-14 w-52 h-52 rounded-full bg-primary/12" />
+      <View className="absolute -left-16 bottom-10 w-48 h-48 rounded-full bg-primary-soft/30" />
+
       {/* Header */}
       <View className="pt-16 pb-6 px-6 flex-row justify-between items-center">
-        <Text className="text-text-primary text-2xl font-bold">Profile</Text>
+        <View>
+          <Text className="text-text-primary text-3xl font-black tracking-tight">
+            Profile
+          </Text>
+          <Text className="text-text-secondary mt-1">You, simplified.</Text>
+        </View>
         <Pressable
           onPress={signOut}
-          className="bg-surface-light px-4 py-2 rounded-xl border border-border-subtle active:scale-95"
+          className="active:scale-95"
         >
-          <Text className="text-danger font-semibold text-sm">Sign Out</Text>
+          <LinearGradient
+            colors={["#ffffff", "#fff5f7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="px-4 py-2 rounded-xl border border-border-subtle"
+          >
+            <Text className="text-danger font-semibold text-sm">Sign Out</Text>
+          </LinearGradient>
         </Pressable>
       </View>
 
-      {/* Profile Card */}
-      <View className="mx-6 bg-surface rounded-3xl overflow-hidden border border-border-subtle shadow-glow">
-        {/* Gradient Header */}
-        <LinearGradient
-          colors={["#ffdce6", "#f7f4fb"]}
-          className="h-20"
-        />
-
-        {/* Avatar */}
-        <View className="items-center -mt-12">
-          <View className="w-24 h-24 rounded-full bg-surface-light border-4 border-background items-center justify-center">
-            <Ionicons
-              name={profile?.gender === "female" ? "woman" : "man"}
-              size={40}
-              color="#a698b7"
-            />
-          </View>
-        </View>
-
-        {/* Info */}
-        <View className="px-6 pb-6 pt-4">
-          <Text className="text-text-primary text-xl font-bold text-center">
-            {profile?.username || user?.email?.split("@")[0] || "Player"}
-          </Text>
-          <Text className="text-text-secondary text-center mt-1">
-            {user?.email}
-          </Text>
-
-          {/* Tier Badge */}
-          <View className="items-center mt-4">
+      <View className="px-6 space-y-4 pb-10">
+        {/* Profile Card */}
+        <View
+          className="bg-surface rounded-3xl p-5 border border-border-subtle"
+          style={shadowStyle({
+            color: "#ef233c",
+            opacity: 0.06,
+            radius: 12,
+            offsetY: 10,
+            elevation: 4,
+          })}
+        >
+          <View className="flex-row items-center">
+            <View className="w-16 h-16 rounded-2xl bg-primary/10 items-center justify-center mr-4 border border-primary/20">
+              <Ionicons
+                name={profile?.gender === "female" ? "woman" : "man"}
+                size={32}
+                color="#ef233c"
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="text-text-primary text-xl font-bold">
+                {profile?.username || user?.email?.split("@")[0] || "Player"}
+              </Text>
+              <Text className="text-text-secondary mt-1">{user?.email}</Text>
+            </View>
             <View
-              className="px-6 py-2 rounded-full"
+              className="px-3 py-2 rounded-2xl"
               style={{ backgroundColor: `${rank.color}20` }}
             >
-              <Text style={{ color: rank.color }} className="font-bold">
+              <Text style={{ color: rank.color }} className="font-bold text-xs">
                 {rank.name}
               </Text>
             </View>
           </View>
         </View>
-      </View>
 
-      {/* Stats Grid */}
-      <View className="mx-6 mt-6 flex-row space-x-4">
-        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
-          <Text className="text-text-secondary text-xs">ELO RATING</Text>
-          <Text className="text-primary text-2xl font-bold mt-1">
-            {profile?.elo_rating || 1000}
-          </Text>
-        </View>
-        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
-          <Text className="text-text-secondary text-xs">WIN RATE</Text>
-          <Text className="text-primary-soft text-2xl font-bold mt-1">
-            {stats.winRate}%
-          </Text>
-        </View>
-      </View>
-
-      <View className="mx-6 mt-4 flex-row space-x-4">
-        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
-          <Text className="text-text-secondary text-xs">GAMES PLAYED</Text>
-          <Text className="text-text-primary text-2xl font-bold mt-1">
-            {stats.totalGames}
-          </Text>
-        </View>
-        <View className="flex-1 bg-surface-light/80 rounded-2xl p-4 border border-border-subtle">
-          <Text className="text-text-secondary text-xs">CORRECT</Text>
-          <Text className="text-primary text-2xl font-bold mt-1">
-            {stats.correctGuesses}
-          </Text>
-        </View>
-      </View>
-
-      {/* Subscription Section */}
-      <View className="mx-6 mt-6">
-        <Text className="text-text-secondary text-sm mb-3 ml-1">
-          SUBSCRIPTION
-        </Text>
-        {profile?.is_premium ? (
-          <View className="bg-warning/15 rounded-2xl p-5 border border-warning/30">
-            <View className="flex-row items-center">
-              <Ionicons name="star" size={24} color="#f6c177" />
-              <View className="ml-3">
-                <Text className="text-warning font-bold text-lg">
-                  TRUTH TIER
-                </Text>
-                <Text className="text-text-secondary text-sm">
-                  100% real matches guaranteed
-                </Text>
-              </View>
-            </View>
+        {/* Stats */}
+        <View className="bg-surface rounded-3xl p-5 border border-border-subtle space-y-3">
+          <View className="flex-row justify-between">
+            <Text className="text-text-secondary text-sm">ELO</Text>
+            <Text className="text-text-primary font-bold text-xl">
+              {profile?.elo_rating || 1000}
+            </Text>
           </View>
-        ) : (
-          <Pressable>
-            <LinearGradient
-              colors={["#ffdce6", "#f7f4fb"]}
-              className="rounded-2xl p-5 border border-border-subtle/60"
-            >
-              <View className="flex-row items-center justify-between">
-                <View>
-                  <Text className="text-text-primary font-bold text-lg">
-                    Upgrade to TRUTH
+          <View className="flex-row justify-between">
+            <Text className="text-text-secondary text-sm">Win rate</Text>
+            <Text className="text-primary font-bold text-xl">
+              {stats.winRate}%
+            </Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-text-secondary text-sm">Games played</Text>
+            <Text className="text-text-primary font-bold text-xl">
+              {stats.totalGames}
+            </Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-text-secondary text-sm">Correct calls</Text>
+            <Text className="text-primary font-bold text-xl">
+              {stats.correctGuesses}
+            </Text>
+          </View>
+        </View>
+
+        {/* Subscription Section */}
+        <View className="bg-surface-light rounded-3xl p-5 border border-border-subtle/80">
+          <Text className="text-text-secondary text-sm mb-3 ml-1">
+            SUBSCRIPTION
+          </Text>
+          {profile?.is_premium ? (
+            <View className="bg-warning/15 rounded-2xl p-5 border border-warning/30">
+              <View className="flex-row items-center">
+                <Ionicons name="star" size={24} color="#f6c177" />
+                <View className="ml-3">
+                  <Text className="text-warning font-bold text-lg">
+                    TRUTH TIER
                   </Text>
-                  <Text className="text-text-secondary text-sm mt-1">
-                    Skip the AI. Match with real people only.
+                  <Text className="text-text-secondary text-sm">
+                    100% real matches guaranteed
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#7a6a8a" />
               </View>
-            </LinearGradient>
-          </Pressable>
-        )}
+            </View>
+          ) : (
+            <Pressable className="active:scale-95">
+              <LinearGradient
+                colors={["#ffffff", "#fff5f7"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="rounded-2xl p-5 border border-border-subtle/60"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text className="text-text-primary font-bold text-lg">
+                      Upgrade to TRUTH
+                    </Text>
+                    <Text className="text-text-secondary text-sm mt-1">
+                      Skip the AI. Match with real people only.
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#a17b88" />
+                </View>
+              </LinearGradient>
+            </Pressable>
+          )}
+        </View>
       </View>
-
     </ScrollView>
   );
 }

@@ -1,3 +1,4 @@
+import { shadowStyle } from "@/lib/shadow";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
@@ -7,18 +8,24 @@ export default function MainLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#12121a",
-          borderTopColor: "#1a1a24",
-          borderTopWidth: 1,
-          height: 85,
-          paddingBottom: 20,
-          paddingTop: 10,
+          backgroundColor: "#ffffff",
+          borderTopWidth: 0,
+          height: 82,
+          paddingBottom: 18,
+          paddingTop: 12,
+          ...shadowStyle({
+            color: "#ef233c",
+            opacity: 0.08,
+            radius: 12,
+            elevation: 0,
+          }),
         },
-        tabBarActiveTintColor: "#00ff88",
-        tabBarInactiveTintColor: "#666680",
+        tabBarActiveTintColor: "#ef233c",
+        tabBarInactiveTintColor: "#c7a9b2",
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
+          fontWeight: "700",
+          letterSpacing: 0.2,
         },
       }}
     >

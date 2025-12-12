@@ -6,7 +6,7 @@ A dating app that gamifies the initial interaction through a "Turing Test" mecha
 
 - **Framework**: Expo 54 + expo-router (file-based routing)
 - **Backend**: Supabase (Auth, Postgres, Edge Functions)
-- **AI**: Vercel AI SDK + Google Gemini 2.0 Flash
+- **AI**: Provider-agnostic client (default: Mistral Chat Completions)
 - **State**: Zustand
 - **Styling**: NativeWind (Tailwind CSS for React Native)
 
@@ -17,7 +17,7 @@ A dating app that gamifies the initial interaction through a "Turing Test" mecha
 - Node.js 18+
 - Expo CLI: `npm install -g expo-cli`
 - Supabase account (free tier works)
-- Google AI API key (from [Google AI Studio](https://aistudio.google.com/apikey))
+- Mistral API key (from [Mistral dashboard](https://console.mistral.ai/api-keys))
 
 ### 1. Install Dependencies
 
@@ -42,7 +42,10 @@ cp env.example .env
 Then edit `.env` with your credentials:
 - `EXPO_PUBLIC_SUPABASE_URL` - From Supabase Dashboard > Settings > API
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` - From Supabase Dashboard > Settings > API  
-- `GOOGLE_GENERATIVE_AI_API_KEY` - From [Google AI Studio](https://aistudio.google.com/apikey)
+- `EXPO_PUBLIC_MISTRAL_API_KEY` - From [Mistral dashboard](https://console.mistral.ai/api-keys)
+- `EXPO_PUBLIC_MISTRAL_MODEL` - Optional, defaults to `mistral-small-latest`
+- `EXPO_PUBLIC_AI_PROVIDER` - Optional, defaults to `mistral` (set to `mock` to disable API calls)
+- `EXPO_PUBLIC_MISTRAL_BASE_URL` - Optional, defaults to `https://api.mistral.ai`
 
 ### 4. Deploy Edge Function (Optional)
 
@@ -52,7 +55,7 @@ For production, deploy the chat edge function:
 supabase functions deploy chat --project-ref your-project-ref
 ```
 
-Set `GOOGLE_GENERATIVE_AI_API_KEY` in Supabase Dashboard > Edge Functions > Secrets.
+Set `EXPO_PUBLIC_MISTRAL_API_KEY` in Supabase Dashboard > Edge Functions > Secrets if you deploy edge functions that need it.
 
 ### 5. Run the App
 

@@ -1,3 +1,4 @@
+import { shadowStyle } from "@/lib/shadow";
 import React from "react";
 import { Text, View, ViewProps } from "react-native";
 
@@ -20,14 +21,14 @@ export default function Card({
 
   const elevatedStyle =
     variant === "elevated"
-      ? {
-          shadowColor: "#e53955",
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.12,
-          shadowRadius: 18,
+      ? shadowStyle({
+          color: "#e53955",
+          opacity: 0.12,
+          radius: 18,
+          offsetY: 10,
           elevation: 10,
-        }
-      : {};
+        })
+      : undefined;
 
   return (
     <View

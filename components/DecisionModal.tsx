@@ -6,10 +6,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 import Animated, {
-    FadeIn,
-    FadeInDown,
-    FadeInUp,
-    ZoomIn,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  ZoomIn,
 } from "react-native-reanimated";
 
 interface DecisionModalProps {
@@ -142,7 +142,7 @@ export default function DecisionModal({
                 disabled={isProcessing}
               >
                 <LinearGradient
-                  colors={["#e53955", "#f88ca0"]}
+                  colors={["#ef233c", "#ff6b6b"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   className="py-5 rounded-3xl items-center shadow-glow"
@@ -162,14 +162,14 @@ export default function DecisionModal({
                 className="mt-4"
               >
                 <LinearGradient
-                  colors={["#ffdce6", "#f0ecf7"]}
+                  colors={["#fff5f7", "#ffffff"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   className="py-5 rounded-3xl items-center border border-border-subtle/60"
                 >
                   <View className="flex-row items-center space-x-3">
                     <Ionicons name="hardware-chip" size={24} color="#1b102b" />
-                    <Text className="text-background text-xl font-bold">
+                    <Text className="text-text-primary text-xl font-bold">
                       AI AGENT
                     </Text>
                   </View>
@@ -184,7 +184,7 @@ export default function DecisionModal({
             entering={ZoomIn.duration(300)}
             className="items-center"
           >
-            <ActivityIndicator size="large" color="#00d4ff" />
+            <ActivityIndicator size="large" color="#ef233c" />
             <Text className="text-text-primary text-xl font-bold mt-4">
               Analyzing match...
             </Text>
@@ -209,7 +209,7 @@ export default function DecisionModal({
               <Ionicons
                 name={wasCorrect ? "checkmark-circle" : "close-circle"}
                 size={64}
-                color={wasCorrect ? "#e53955" : "#d7263d"}
+                color={wasCorrect ? "#ef233c" : "#d7263d"}
               />
             </Animated.View>
 
@@ -256,7 +256,9 @@ export default function DecisionModal({
                   </Text>
                   <Pressable className="mt-4">
                     <LinearGradient
-                  colors={["#ffdce6", "#f88ca0"]}
+                      colors={["#ef233c", "#ff6b6b"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
                       className="py-3 rounded-2xl items-center"
                     >
                       <Text className="text-background font-bold">

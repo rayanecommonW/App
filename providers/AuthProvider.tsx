@@ -142,7 +142,14 @@ export default function AuthProvider({
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Don't let network issues block logout UX (especially on web).
+    void supabase.auth
+      .signOut()
+      .then(({ error }) => {
+        if (error) console.warn("Supabase signOut error:", error);
+      })
+      .catch((error) => console.warn("Supabase signOut threw:", error));
+
     reset();
     router.replace("/(auth)/login");
   };

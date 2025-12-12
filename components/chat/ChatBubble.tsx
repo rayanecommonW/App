@@ -16,13 +16,13 @@ export default function ChatBubble({
   return (
     <Animated.View
       entering={FadeInUp.duration(300)}
-      className={`max-w-[80%] mb-3 ${isUser ? "self-end" : "self-start"}`}
+      className={`max-w-[82%] mb-3 ${isUser ? "self-end" : "self-start"}`}
     >
       <View
-        className={`px-4 py-3 rounded-3xl ${
+        className={`px-4 py-3 rounded-[22px] ${
           isUser
-            ? "bg-primary rounded-br-xl shadow-glow"
-            : "bg-surface border border-border-subtle rounded-bl-xl"
+            ? "bg-primary shadow-glow"
+            : "bg-surface border border-border-subtle/80"
         }`}
       >
         <Text
@@ -49,9 +49,9 @@ export function TypingIndicator() {
   return (
     <Animated.View
       entering={FadeIn.duration(200)}
-      className="self-start max-w-[80%] mb-3"
+      className="self-start max-w-[82%] mb-3"
     >
-      <View className="bg-surface border border-border-subtle rounded-3xl rounded-bl-xl px-4 py-3 flex-row items-center">
+      <View className="bg-surface border border-border-subtle/80 rounded-[22px] px-4 py-3 flex-row items-center">
         <View className="flex-row space-x-1">
           <Animated.View
             className="w-2 h-2 rounded-full bg-primary"

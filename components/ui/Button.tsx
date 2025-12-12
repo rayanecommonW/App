@@ -1,3 +1,4 @@
+import { shadowStyle } from "@/lib/shadow";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -40,17 +41,17 @@ export default function Button({
   };
 
   const sharedPressable = `${disabled || loading ? "opacity-60" : "active:scale-[0.98]"}`;
-  const shadowGlow = {
-    shadowColor: "#e53955",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+  const shadowGlow = shadowStyle({
+    color: "#e53955",
+    opacity: 0.2,
+    radius: 12,
+    offsetY: 8,
     elevation: 6,
-  };
+  });
 
   const renderLabel = (colorClass: string) =>
     loading ? (
-      <ActivityIndicator color={colorClass === "text-background" ? "#ffffff" : "#e53955"} />
+      <ActivityIndicator color={colorClass === "text-background" ? "#ffffff" : "#ef233c"} />
     ) : (
       <Text className={`font-semibold ${textSizes[size]} ${colorClass}`}>{title}</Text>
     );
@@ -64,7 +65,7 @@ export default function Button({
         style={shadowGlow}
       >
         <LinearGradient
-          colors={["#e53955", "#f88ca0"]}
+          colors={["#ef233c", "#ff5f6d"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           className={`${sizeStyles[size]} flex-row items-center justify-center`}
@@ -83,7 +84,7 @@ export default function Button({
         className={`${sharedPressable} ${className}`}
       >
         <LinearGradient
-          colors={["#ffffff", "#f7f4fb"]}
+          colors={["#ffffff", "#fff5f7"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           className={`${sizeStyles[size]} border border-border-subtle flex-row items-center justify-center`}
@@ -114,7 +115,7 @@ export default function Button({
         className={`${sharedPressable} ${className}`}
       >
         <LinearGradient
-          colors={["#f56767", "#e53955"]}
+          colors={["#ff6b6b", "#ef233c"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           className={`${sizeStyles[size]} flex-row items-center justify-center`}

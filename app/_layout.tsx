@@ -40,7 +40,7 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <RootNavigator />
     </AuthProvider>
   );
