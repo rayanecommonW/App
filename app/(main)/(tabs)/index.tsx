@@ -216,10 +216,10 @@ export default function HomeScreen() {
             <IconButton icon="menu-outline" label="Menu" onPress={openDrawer} />
             <View className="flex-1">
               <Text className="text-text-primary text-3xl font-bold tracking-tight">
-                BotRoyal
+                Rizz Rnaked
               </Text>
               <Text className="text-text-secondary mt-1">
-                5 minutes. One guess. Don’t blink.
+                Gooner rehab: rizz fast, touch 🍃 grass.
               </Text>
             </View>
           </View>
@@ -241,7 +241,7 @@ export default function HomeScreen() {
         <View className="px-6 gap-3">
           <Card variant="elevated">
             <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
-              ELO
+              🍃 GRASS
             </Text>
             <View className="flex-row items-end justify-between mt-2">
               <Text className="text-text-primary text-4xl font-bold">
@@ -319,7 +319,7 @@ export default function HomeScreen() {
                 {Math.floor(Math.random() * 500) + 100} online
               </Text>
             </View>
-            <Text className="text-primary text-sm font-semibold">Rank up</Text>
+            <Text className="text-primary text-sm font-semibold">Touch more grass</Text>
           </Card>
         </View>
       </View>

@@ -22,7 +22,7 @@ interface DecisionModalProps {
 type GuessType = "real" | "ai";
 type ResultState = "guessing" | "revealing" | "result";
 
-// ELO constants
+// Grass score constants
 const ELO_WIN = 25;
 const ELO_LOSS = -20;
 
@@ -82,7 +82,7 @@ export default function DecisionModal({
         })
         .eq("id", sessionId);
 
-      // Update user's ELO
+      // Update user's grass score
       if (profile) {
         const newElo = Math.max(0, profile.elo_rating + elo);
         await supabase
@@ -224,7 +224,7 @@ export default function DecisionModal({
 
                 <View className="items-center mt-6">
                   <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
-                    ELO CHANGE
+                    🍃 GRASS CHANGE
                   </Text>
                   <Text
                     className={`text-3xl font-bold mt-1 ${

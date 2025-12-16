@@ -55,9 +55,9 @@ function Panel({ tab }: { tab: TabName }) {
   if (tab === "explore") {
     return (
       <SheetSection title="Leaderboard">
-        <ListItem title="#1  NeonFox" subtitle="ELO 2110" right={<Badge text="GM" />} />
-        <ListItem title="#2  Quartz" subtitle="ELO 1984" right={<Badge text="M" />} />
-        <ListItem title="#3  RedPanda" subtitle="ELO 1766" right={<Badge text="D" />} />
+        <ListItem title="#1  NeonFox" subtitle="🍃 Grass 2110" right={<Badge text="GM" />} />
+        <ListItem title="#2  Quartz" subtitle="🍃 Grass 1984" right={<Badge text="M" />} />
+        <ListItem title="#3  RedPanda" subtitle="🍃 Grass 1766" right={<Badge text="D" />} />
       </SheetSection>
     );
   }
@@ -65,9 +65,21 @@ function Panel({ tab }: { tab: TabName }) {
   if (tab === "matches") {
     return (
       <SheetSection title="History">
-        <ListItem title="AI Agent" subtitle="Correct guess • +25 ELO" right={<Badge text="+25" />} />
-        <ListItem title="AI Agent" subtitle="Wrong guess • -20 ELO" right={<Badge text="-20" />} />
-        <ListItem title="AI Agent" subtitle="Correct guess • +25 ELO" right={<Badge text="+25" />} />
+        <ListItem
+          title="AI Agent"
+          subtitle="Correct rizz • +25 🍃 Grass"
+          right={<Badge text="+25" />}
+        />
+        <ListItem
+          title="AI Agent"
+          subtitle="Missed rizz • -20 🍃 Grass"
+          right={<Badge text="-20" />}
+        />
+        <ListItem
+          title="AI Agent"
+          subtitle="Correct rizz • +25 🍃 Grass"
+          right={<Badge text="+25" />}
+        />
       </SheetSection>
     );
   }

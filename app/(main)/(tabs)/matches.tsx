@@ -26,7 +26,10 @@ export default function MatchesScreen() {
             QUICK
           </Text>
           <View className="gap-2">
-            <ListItem title="Last result" subtitle="Correct guess • +25 ELO (demo)" />
+            <ListItem
+              title="Last result"
+              subtitle="Correct rizz • +25 🍃 Grass (demo)"
+            />
             <ListItem title="Streak" subtitle="0 wins (demo)" />
           </View>
         </Card>

@@ -105,7 +105,7 @@ export default function ProfileScreen() {
             STATS
           </Text>
           <View className="gap-2">
-            <ListItem title="ELO" subtitle={`${profile?.elo_rating || 1000}`} />
+            <ListItem title="🍃 Grass" subtitle={`${profile?.elo_rating || 1000}`} />
             <ListItem title="Win rate" subtitle={`${stats.winRate}%`} />
             <ListItem title="Games played" subtitle={`${stats.totalGames}`} />
             <ListItem title="Correct calls" subtitle={`${stats.correctGuesses}`} />
