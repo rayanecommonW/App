@@ -20,7 +20,8 @@ interface DecisionModalProps {
 }
 
 type GuessType = "real" | "ai";
-type ResultState = "guessing" | "revealing" | "result";
+// Flow: guessing → rating → revealing → result
+type ResultState = "guessing" | "rating" | "revealing" | "result";
 
 // Grass score constants
 const ELO_WIN = 25;
@@ -38,24 +39,48 @@ export default function DecisionModal({
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [eloChange, setEloChange] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   // In MVP, all matches are AI
   const actualMatch: GuessType = "ai";
 
-  const handleGuess = async (guess: GuessType) => {
+  // Step 1: User makes their guess, then moves to rating
+  const handleGuess = (guess: GuessType) => {
     if (isProcessing) return;
-    
-    setIsProcessing(true);
     setUserGuess(guess);
-    setState("revealing");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setState("rating");
+  };
 
-    // Dramatic reveal haptics
+  const handleRatingSelect = (rating: number) => {
+    setSelectedRating(rating);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Step 2: After rating, proceed to reveal
+  const handleSubmitRating = async () => {
+    setIsProcessing(true);
+    
+    // Save rating to database
+    if (selectedRating !== null) {
+      try {
+        await supabase
+          .from("chat_sessions")
+          .update({ player_rating: selectedRating })
+          .eq("id", sessionId);
+      } catch (error) {
+        console.error("Failed to save rating:", error);
+      }
+    }
+
+    // Move to revealing state
+    setState("revealing");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
     // Suspense delay
     await new Promise((r) => setTimeout(r, 2000));
 
-    const correct = guess === actualMatch;
+    const correct = userGuess === actualMatch;
     const elo = correct ? ELO_WIN : ELO_LOSS;
     
     setWasCorrect(correct);
@@ -69,14 +94,13 @@ export default function DecisionModal({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
 
-    // Update database
+    // Update database with result
     try {
-      // Update session with result
       await supabase
         .from("chat_sessions")
         .update({
           ended_at: new Date().toISOString(),
-          user_guess: guess,
+          user_guess: userGuess,
           was_correct: correct,
           elo_change: elo,
         })
@@ -90,7 +114,6 @@ export default function DecisionModal({
           .update({ elo_rating: newElo })
           .eq("id", profile.id);
 
-        // Update local state
         setProfile({ ...profile, elo_rating: newElo });
       }
     } catch (error) {
@@ -107,8 +130,12 @@ export default function DecisionModal({
     setUserGuess(null);
     setWasCorrect(null);
     setEloChange(0);
+    setSelectedRating(null);
     onClose();
   };
+
+  // Show upgrade prompt only if user guessed correctly AND it was an AI
+  const showUpgradePrompt = wasCorrect && actualMatch === "ai";
 
   return (
     <Modal
@@ -118,6 +145,7 @@ export default function DecisionModal({
       statusBarTranslucent
     >
       <View className="flex-1 bg-background/90 items-center justify-center px-6">
+        {/* Step 1: Make your guess */}
         {state === "guessing" && (
           <Animated.View
             entering={FadeInDown.duration(500)}
@@ -126,7 +154,7 @@ export default function DecisionModal({
             <Card variant="elevated" className="p-5">
               <View className="mb-5">
                 <Text className="text-text-secondary text-xs font-semibold tracking-[0.8px]">
-                  TIME’S UP
+                  TIME&apos;S UP
                 </Text>
                 <Text className="text-text-primary text-2xl font-bold mt-2">
                   Make your call
@@ -167,6 +195,69 @@ export default function DecisionModal({
           </Animated.View>
         )}
 
+        {/* Step 2: Rate your match (BEFORE revealing) */}
+        {state === "rating" && (
+          <Animated.View
+            entering={FadeIn.duration(500)}
+            className="w-full max-w-sm items-center"
+          >
+            <Card variant="elevated" className="w-full">
+              <View className="items-center mb-4">
+                <View className="w-16 h-16 rounded-2xl bg-surface-light border border-border-subtle items-center justify-center">
+                  <Ionicons name="star" size={28} color="#ef233c" />
+                </View>
+              </View>
+
+              <Text className="text-text-primary text-2xl font-bold text-center">
+                Rate your match
+              </Text>
+              <Text className="text-text-secondary text-center mt-2 mb-6">
+                How was the vibe?
+              </Text>
+
+              {/* Rating buttons - row of 1-10 */}
+              <View className="flex-row flex-wrap justify-center gap-2 mb-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                  <Pressable
+                    key={rating}
+                    onPress={() => handleRatingSelect(rating)}
+                    className={`w-11 h-11 rounded-xl items-center justify-center border ${
+                      selectedRating === rating
+                        ? "bg-primary border-primary"
+                        : "bg-surface border-border-subtle"
+                    } active:opacity-85`}
+                  >
+                    <Text
+                      className={`font-bold text-base ${
+                        selectedRating === rating
+                          ? "text-background"
+                          : "text-text-primary"
+                      }`}
+                    >
+                      {rating}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Rating labels */}
+              <View className="flex-row justify-between px-2 mb-6">
+                <Text className="text-muted text-xs">Boring 😴</Text>
+                <Text className="text-muted text-xs">Amazing 🔥</Text>
+              </View>
+
+              <Button
+                onPress={handleSubmitRating}
+                title={selectedRating ? `Continue (${selectedRating}/10)` : "Skip & reveal"}
+                variant={selectedRating ? "primary" : "secondary"}
+                size="lg"
+                disabled={isProcessing}
+              />
+            </Card>
+          </Animated.View>
+        )}
+
+        {/* Step 3: Revealing animation */}
         {state === "revealing" && (
           <Animated.View
             entering={ZoomIn.duration(300)}
@@ -186,6 +277,7 @@ export default function DecisionModal({
           </Animated.View>
         )}
 
+        {/* Step 4: Show result */}
         {state === "result" && (
           <Animated.View
             entering={FadeIn.duration(500)}
@@ -236,7 +328,7 @@ export default function DecisionModal({
                   </Text>
                 </View>
 
-                {!wasCorrect && (
+                {showUpgradePrompt && (
                   <View className="mt-6 bg-surface-light rounded-2xl p-4 border border-border-subtle">
                     <Text className="text-text-primary font-semibold text-center">
                       Want real-only matches?
@@ -269,4 +361,3 @@ export default function DecisionModal({
     </Modal>
   );
 }
-

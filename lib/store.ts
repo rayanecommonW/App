@@ -61,7 +61,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   persona: null,
   messages: [],
   isTyping: false,
-  timeRemaining: 300, // 5 minutes
+  timeRemaining: 60, // 1 minute
   messageCount: 0,
   isSessionEnded: false,
   showDecisionModal: false,
@@ -72,7 +72,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       persona,
       messages: [],
       isTyping: false,
-      timeRemaining: 300,
+      timeRemaining: 60,
       messageCount: 0,
       isSessionEnded: false,
       showDecisionModal: false,
@@ -118,7 +118,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       persona: null,
       messages: [],
       isTyping: false,
-      timeRemaining: 300,
+      timeRemaining: 60,
       messageCount: 0,
       isSessionEnded: false,
       showDecisionModal: false,

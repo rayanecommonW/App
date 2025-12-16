@@ -21,7 +21,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
-const MAX_TIME = 300; // 5 minutes
+const MAX_TIME = 60; // 1 minute
 const MAX_MESSAGES = 20;
 
 export default function ChatScreen() {

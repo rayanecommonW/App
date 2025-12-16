@@ -82,6 +82,7 @@ export type Database = {
           ended_at: string | null
           id: string
           message_count: number | null
+          player_rating: number | null
           started_at: string | null
           user_guess: "real" | "ai" | null
           user_id: string
@@ -93,6 +94,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           message_count?: number | null
+          player_rating?: number | null
           started_at?: string | null
           user_guess?: "real" | "ai" | null
           user_id: string
@@ -104,6 +106,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           message_count?: number | null
+          player_rating?: number | null
           started_at?: string | null
           user_guess?: "real" | "ai" | null
           user_id?: string

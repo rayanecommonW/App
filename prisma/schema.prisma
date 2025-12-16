@@ -44,6 +44,7 @@ model chat_sessions {
   user_guess    String?
   was_correct   Boolean?
   elo_change    Int?
+  player_rating Int?
   user          profiles        @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "chat_sessions_user_id_fkey")
   ai_persona    ai_personas     @relation(fields: [ai_persona_id], references: [id])
   chat_messages chat_messages[]
