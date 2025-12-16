@@ -1,20 +1,13 @@
 import Card from "@/components/ui/Card";
 import ListItem from "@/components/ui/ListItem";
 import SectionHeader from "@/components/ui/SectionHeader";
+import TabContent from "@/components/ui/TabContent";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function MatchesContent() {
   return (
-    <View style={styles.container}>
-      {/* Coral/salmon gradient from top */}
-      <LinearGradient
-        colors={['#ffeaed', '#fff4f5', '#ffffff']}
-        locations={[0, 0.35, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-      
+    <TabContent gradient="coral">
       <View className="pt-14 pb-5 px-6">
         <SectionHeader
           title="Matches"
@@ -81,13 +74,6 @@ export default function MatchesContent() {
           </View>
         </Card>
       </View>
-    </View>
+    </TabContent>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: 160,
-  },
-});

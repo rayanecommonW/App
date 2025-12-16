@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { clamp, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
@@ -289,10 +289,10 @@ export default function HomeContent() {
             <IconButton icon="menu-outline" label="Menu" onPress={openDrawerJS} />
             <View className="flex-1">
               <Text className="text-text-primary text-3xl font-bold tracking-tight">
-                Rizz Rnaked
+                Rizz Ranked
               </Text>
               <Text className="text-text-secondary mt-1">
-                Gooner rehab: rizz fast, touch 🍃 grass.
+                Prove you&apos;re not a gooner by touching grass
               </Text>
             </View>
           </View>
@@ -315,7 +315,7 @@ export default function HomeContent() {
             <View className="flex-row items-center gap-2 mb-2">
               <Text className="text-lg">🍃</Text>
               <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
-                GRASS SCORE
+                GRASS TOUCHED
               </Text>
             </View>
             <View className="flex-row items-end justify-between">
@@ -371,6 +371,28 @@ export default function HomeContent() {
             </Card>
           ) : (
             <View className="gap-4">
+              {/* Arena Display */}
+              <View className="items-center mb-2">
+                {/* Arena number */}
+                <Text style={styles.arenaLabel}>ARENA 1</Text>
+                
+                {/* Image with purple glow */}
+                <View style={styles.imageGlowContainer}>
+                  {/* Glow layers - smallest to largest for intensity */}
+                  <View style={[styles.glowLayer, styles.glowLayer1]} />
+                  <View style={[styles.glowLayer, styles.glowLayer2]} />
+                  <View style={[styles.glowLayer, styles.glowLayer3]} />
+                  <Image
+                    source={require("@/assets/images/cave.png")}
+                    style={styles.arenaImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                
+                {/* Arena name */}
+                <Text style={styles.arenaTitle}>Maidenless Cave</Text>
+              </View>
+
               <Button
                 onPress={handleFindMatch}
                 title="Find match"
@@ -512,5 +534,66 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRightWidth: 1,
     borderRightColor: "#f6d9e1",
+  },
+  arenaLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#6b7280",
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  imageGlowContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  glowLayer: {
+    position: "absolute",
+    borderRadius: 999,
+  },
+  glowLayer1: {
+    width: 60,
+    height: 60,
+    backgroundColor: "#c084fc",
+    shadowColor: "#a855f7",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
+    elevation: 15,
+    opacity: 0.7,
+  },
+  glowLayer2: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#a855f7",
+    shadowColor: "#8b5cf6",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 25,
+    elevation: 20,
+    opacity: 0.4,
+  },
+  glowLayer3: {
+    width: 100,
+    height: 100,
+    backgroundColor: "#8b5cf6",
+    shadowColor: "#7c3aed",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 35,
+    elevation: 25,
+    opacity: 0.2,
+  },
+  arenaImage: {
+    width: 120,
+    height: 100,
+    zIndex: 10,
+  },
+  arenaTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    textAlign: "center",
   },
 });

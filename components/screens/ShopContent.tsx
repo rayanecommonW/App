@@ -1,20 +1,13 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import SectionHeader from "@/components/ui/SectionHeader";
+import TabContent from "@/components/ui/TabContent";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function ShopContent() {
   return (
-    <View style={styles.container}>
-      {/* Gold/cream gradient */}
-      <LinearGradient
-        colors={['#fff8e8', '#fffbf2', '#ffffff']}
-        locations={[0, 0.4, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-      
+    <TabContent gradient="cream">
       <View className="pt-14 pb-5 px-6">
         <SectionHeader
           title="Shop"
@@ -94,15 +87,11 @@ export default function ShopContent() {
           </Text>
         </Card>
       </View>
-    </View>
+    </TabContent>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: 160,
-  },
   premiumCard: {
     borderWidth: 1,
     borderColor: '#fcd34d',

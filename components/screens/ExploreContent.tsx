@@ -1,19 +1,12 @@
 import Card from "@/components/ui/Card";
 import SectionHeader from "@/components/ui/SectionHeader";
+import TabContent from "@/components/ui/TabContent";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function ExploreContent() {
   return (
-    <View style={styles.container}>
-      {/* Reverse gradient - darker at bottom, lighter at top */}
-      <LinearGradient
-        colors={['#ffffff', '#fff5f6', '#ffd4db']}
-        locations={[0, 0.6, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-      
+    <TabContent gradient="rose">
       <View className="pt-14 pb-5 px-6">
         <SectionHeader
           title="Explore"
@@ -79,13 +72,6 @@ export default function ExploreContent() {
           </Text>
         </Card>
       </View>
-    </View>
+    </TabContent>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: 160,
-  },
-});
