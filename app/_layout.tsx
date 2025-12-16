@@ -1,4 +1,4 @@
-import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import AuthProvider, { useAuth } from "@/providers/AuthProvider";
 import { Stack } from "expo-router";
@@ -6,7 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -42,11 +42,13 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <StatusBar style="dark" />
-        <RootNavigator />
-      </AuthProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <RootNavigator />
+        </AuthProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }

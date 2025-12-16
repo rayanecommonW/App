@@ -1,10 +1,10 @@
-import { useAuthStore } from "@/lib/store";
-import { supabase } from "@/lib/supabase";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import IconButton from "@/components/ui/IconButton";
 import ListItem from "@/components/ui/ListItem";
 import SectionHeader from "@/components/ui/SectionHeader";
+import { useAuthStore } from "@/lib/store";
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
