@@ -1,4 +1,5 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import AuthProvider, { useAuth } from "@/providers/AuthProvider";
 import { Stack } from "expo-router";
@@ -44,10 +45,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <AuthProvider>
-          <StatusBar style="dark" />
-          <RootNavigator />
-        </AuthProvider>
+        <KeyboardProvider>
+          <AuthProvider>
+            <StatusBar style="dark" />
+            <RootNavigator />
+          </AuthProvider>
+        </KeyboardProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

@@ -15,19 +15,19 @@ export default function ChatBubble({
 }: ChatBubbleProps) {
   return (
     <Animated.View
-      entering={FadeInUp.duration(300)}
-      className={`max-w-[82%] mb-3 ${isUser ? "self-end" : "self-start"}`}
+      entering={FadeInUp.duration(250).springify()}
+      className={`max-w-[80%] mb-2 ${isUser ? "self-end" : "self-start"}`}
     >
       <View
-        className={`px-4 py-3 rounded-2xl ${
+        className={`px-4 py-2.5 ${
           isUser
-            ? "bg-primary"
-            : "bg-surface border border-border-subtle/80"
+            ? "bg-primary rounded-2xl rounded-br-md"
+            : "bg-surface-light rounded-2xl rounded-bl-md"
         }`}
       >
         <Text
-          className={`text-base leading-5 ${
-            isUser ? "text-background" : "text-text-primary"
+          className={`text-[15px] leading-[21px] ${
+            isUser ? "text-white" : "text-text-primary"
           }`}
         >
           {content}
@@ -35,7 +35,9 @@ export default function ChatBubble({
       </View>
       {timestamp && (
         <Text
-          className={`text-xs text-muted mt-1 ${isUser ? "text-right mr-1" : "ml-1"}`}
+          className={`text-[11px] text-muted mt-1 ${
+            isUser ? "text-right pr-1" : "pl-1"
+          }`}
         >
           {timestamp}
         </Text>
@@ -44,37 +46,17 @@ export default function ChatBubble({
   );
 }
 
-// Typing Indicator Component
 export function TypingIndicator() {
   return (
     <Animated.View
       entering={FadeIn.duration(200)}
-      className="self-start max-w-[82%] mb-3"
+      className="self-start max-w-[80%] mb-2"
     >
-      <View className="bg-surface border border-border-subtle/80 rounded-2xl px-4 py-3 flex-row items-center">
-        <View className="flex-row space-x-1">
-          <Animated.View
-            className="w-2 h-2 rounded-sm bg-primary"
-            style={{
-              opacity: 0.4,
-            }}
-          />
-          <Animated.View
-            className="w-2 h-2 rounded-sm bg-primary"
-            style={{
-              opacity: 0.6,
-            }}
-          />
-          <Animated.View
-            className="w-2 h-2 rounded-sm bg-primary"
-            style={{
-              opacity: 0.8,
-            }}
-          />
-        </View>
-        <Text className="text-muted text-sm ml-2">typing...</Text>
+      <View className="bg-surface-light rounded-2xl rounded-bl-md px-4 py-3 flex-row items-center gap-1">
+        <View className="w-2 h-2 rounded-full bg-muted opacity-40" />
+        <View className="w-2 h-2 rounded-full bg-muted opacity-60" />
+        <View className="w-2 h-2 rounded-full bg-muted opacity-80" />
       </View>
     </Animated.View>
   );
 }
-
