@@ -12,7 +12,17 @@ import { router } from "expo-router";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { clamp, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+
+const DRAWER_WIDTH = 320;
+const OPEN_THRESHOLD = 0.35; // Open if dragged past 35% of drawer width
+const VELOCITY_THRESHOLD = 500; // Open/close based on velocity
+
+const SPRING_CONFIG = {
+  damping: 20,
+  stiffness: 200,
+  mass: 0.8,
+};
 
 export default function HomeScreen() {
   const { profile, user } = useAuthStore();
@@ -23,65 +33,109 @@ export default function HomeScreen() {
   const searchRunIdRef = useRef(0);
 
   // Left drawer (dating preferences)
-  const drawerWidth = 320;
-  const drawerX = useSharedValue(-drawerWidth);
-  const overlayOpacity = useSharedValue(0);
-  const { isOpen: drawerOpen, setOpen: setDrawerOpen } = useDrawerStore();
+  // drawerProgress: 0 = closed, 1 = fully open
+  const drawerProgress = useSharedValue(0);
+  const gestureStartProgress = useSharedValue(0);
+  const { setOpen: setDrawerOpen } = useDrawerStore();
 
   const openDrawer = useCallback(() => {
-    setDrawerOpen(true);
-    overlayOpacity.value = withTiming(0.35, { duration: 180 });
-    drawerX.value = withTiming(0, { duration: 220 });
-  }, [drawerX, overlayOpacity, setDrawerOpen]);
+    'worklet';
+    drawerProgress.value = withSpring(1, SPRING_CONFIG);
+    runOnJS(setDrawerOpen)(true);
+  }, [drawerProgress, setDrawerOpen]);
 
   const closeDrawer = useCallback(() => {
-    overlayOpacity.value = withTiming(0, { duration: 160 });
-    drawerX.value = withTiming(-drawerWidth, { duration: 220 }, (finished) => {
-      if (finished) runOnJS(setDrawerOpen)(false);
+    'worklet';
+    drawerProgress.value = withSpring(0, SPRING_CONFIG, (finished) => {
+      if (finished) {
+        runOnJS(setDrawerOpen)(false);
+      }
     });
-  }, [drawerWidth, drawerX, overlayOpacity, setDrawerOpen]);
+  }, [drawerProgress, setDrawerOpen]);
+
+  // Open drawer from JS (for button press)
+  const openDrawerJS = useCallback(() => {
+    setDrawerOpen(true);
+    drawerProgress.value = withSpring(1, SPRING_CONFIG);
+  }, [drawerProgress, setDrawerOpen]);
+
+  // Close drawer from JS (for button/overlay press)
+  const closeDrawerJS = useCallback(() => {
+    drawerProgress.value = withSpring(0, SPRING_CONFIG, (finished) => {
+      if (finished) {
+        runOnJS(setDrawerOpen)(false);
+      }
+    });
+  }, [drawerProgress, setDrawerOpen]);
 
   const drawerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: drawerX.value }],
+    transform: [{ translateX: interpolate(drawerProgress.value, [0, 1], [-DRAWER_WIDTH, 0]) }],
   }));
 
   const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
+    opacity: interpolate(drawerProgress.value, [0, 1], [0, 0.5]),
+    pointerEvents: drawerProgress.value > 0.01 ? 'auto' : 'none',
   }));
 
-  // Gesture to close drawer (swipe left on the drawer)
-  const drawerCloseGesture = useMemo(() => {
-    return Gesture.Pan()
-      .enabled(drawerOpen)
-      .activeOffsetX([-15, 15])
-      .onUpdate((e) => {
-        const next = Math.min(0, Math.max(-drawerWidth, e.translationX));
-        drawerX.value = next;
-        overlayOpacity.value = Math.min(0.35, Math.max(0, 0.35 + (next / drawerWidth) * 0.35));
-      })
-      .onEnd((e) => {
-        const shouldClose = e.translationX < -drawerWidth * 0.25 || e.velocityX < -800;
-        runOnJS(shouldClose ? closeDrawer : openDrawer)();
-      });
-  }, [closeDrawer, drawerOpen, drawerWidth, drawerX, openDrawer, overlayOpacity]);
+  // Slight parallax effect on content when drawer opens
+  const contentStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(drawerProgress.value, [0, 1], [0, DRAWER_WIDTH * 0.15]) }],
+  }));
 
-  // Gesture to open drawer (swipe right from left edge)
-  const edgeSwipeGesture = useMemo(() => {
+  // Navigate to explore tab
+  const navigateToExplore = useCallback(() => {
+    router.replace("/(main)/(tabs)/explore");
+  }, []);
+
+  // Combined gesture for both opening/closing the drawer AND navigating to explore
+  // This gesture works anywhere on the screen
+  const panGesture = useMemo(() => {
+    const NAV_THRESHOLD = 64; // Minimum swipe distance to trigger navigation
+
     return Gesture.Pan()
-      .enabled(!drawerOpen)
-      .activeOffsetX([20, 200]) // only triggers on rightward swipe
-      .failOffsetX([-20, 0])
-      .hitSlop({ left: 0, width: 40 }) // only near left edge
+      .activeOffsetX([-20, 20]) // Activate after 20px horizontal movement
+      .failOffsetY([-15, 15]) // Fail if vertical movement is dominant
+      .onStart(() => {
+        gestureStartProgress.value = drawerProgress.value;
+      })
       .onUpdate((e) => {
-        const next = Math.min(0, -drawerWidth + e.translationX);
-        drawerX.value = next;
-        overlayOpacity.value = Math.max(0, (e.translationX / drawerWidth) * 0.35);
+        // Only update drawer progress for rightward swipes (opening) or when drawer is open
+        // For leftward swipes when drawer is closed, don't move the drawer
+        if (e.translationX > 0 || gestureStartProgress.value > 0) {
+          const dragProgress = e.translationX / DRAWER_WIDTH;
+          const newProgress = clamp(gestureStartProgress.value + dragProgress, 0, 1);
+          drawerProgress.value = newProgress;
+        }
       })
       .onEnd((e) => {
-        const shouldOpen = e.translationX > drawerWidth * 0.3 || e.velocityX > 800;
-        runOnJS(shouldOpen ? openDrawer : closeDrawer)();
+        const startedClosed = gestureStartProgress.value < 0.01;
+        const swipedLeft = e.translationX < -NAV_THRESHOLD || e.velocityX < -VELOCITY_THRESHOLD;
+
+        // If drawer was closed and user swiped left → navigate to explore
+        if (startedClosed && swipedLeft) {
+          runOnJS(navigateToExplore)();
+          return;
+        }
+
+        // Otherwise handle drawer open/close
+        const currentProgress = drawerProgress.value;
+        const velocity = e.velocityX;
+
+        let shouldOpen: boolean;
+
+        if (Math.abs(velocity) > VELOCITY_THRESHOLD) {
+          shouldOpen = velocity > 0;
+        } else {
+          shouldOpen = currentProgress > OPEN_THRESHOLD;
+        }
+
+        if (shouldOpen) {
+          openDrawer();
+        } else {
+          closeDrawer();
+        }
       });
-  }, [closeDrawer, drawerOpen, drawerWidth, drawerX, openDrawer, overlayOpacity]);
+  }, [drawerProgress, gestureStartProgress, openDrawer, closeDrawer, navigateToExplore]);
 
   // Preferences (demo)
   const [lookingFor, setLookingFor] = useState<"Everyone" | "Women" | "Men">("Everyone");
@@ -208,12 +262,12 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <GestureDetector gesture={edgeSwipeGesture}>
-      <View className="flex-1 pb-40">
+      <GestureDetector gesture={panGesture}>
+      <Animated.View className="flex-1 pb-40" style={contentStyle}>
         {/* Top bar (Home only): Profile + Settings on the right */}
         <View className="pt-14 pb-5 px-6 flex-row items-start justify-between">
           <View className="flex-row items-start flex-1 pr-3 gap-3">
-            <IconButton icon="menu-outline" label="Menu" onPress={openDrawer} />
+            <IconButton icon="menu-outline" label="Menu" onPress={openDrawerJS} />
             <View className="flex-1">
               <Text className="text-text-primary text-3xl font-bold tracking-tight">
                 Rizz Rnaked
@@ -322,25 +376,24 @@ export default function HomeScreen() {
             <Text className="text-primary text-sm font-semibold">Touch more grass</Text>
           </Card>
         </View>
-      </View>
+      </Animated.View>
       </GestureDetector>
 
       {/* Drawer overlay */}
       <Animated.View
-        pointerEvents={drawerOpen ? "auto" : "none"}
         style={[styles.overlay, overlayStyle]}
       >
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeDrawer} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeDrawerJS} />
       </Animated.View>
 
       {/* Left drawer */}
-      <GestureDetector gesture={drawerCloseGesture}>
+      <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.drawer, drawerStyle]}>
           <View className="pt-14 px-5 pb-5 flex-row items-start justify-between">
             <SectionHeader
               title="Preferences"
               description="Dating filters (demo)"
-              right={<IconButton icon="close" label="Close" onPress={closeDrawer} />}
+              right={<IconButton icon="close" label="Close" onPress={closeDrawerJS} />}
             />
           </View>
 
@@ -415,7 +468,7 @@ export default function HomeScreen() {
             </Card>
 
             <Card variant="outlined">
-              <Button onPress={closeDrawer} title="Done" variant="primary" size="lg" />
+              <Button onPress={closeDrawerJS} title="Done" variant="primary" size="lg" />
             </Card>
           </View>
         </Animated.View>

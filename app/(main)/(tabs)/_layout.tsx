@@ -1,7 +1,7 @@
 import BottomSheetTabs from "@/components/navigation/BottomSheetTabs";
 import { useDrawerStore } from "@/lib/drawerStore";
 import { Tabs, router, useSegments } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
@@ -20,19 +20,16 @@ function getActiveTabName(segments: string[]): TabName {
 export default function TabsLayout() {
   const segments = useSegments();
   const activeTab = useMemo(() => getActiveTabName(segments), [segments]);
-  const { isOpen: drawerOpen, setOpen: setDrawerOpen } = useDrawerStore();
+  const { isOpen: drawerOpen } = useDrawerStore();
 
   const navigateTab = (tab: TabName) => {
     router.replace(tab === "index" ? "/(main)/(tabs)" : `/(main)/(tabs)/${tab}`);
   };
 
-  const openDrawer = useCallback(() => {
-    setDrawerOpen(true);
-  }, [setDrawerOpen]);
-
+  // Swipe gesture for navigating between tabs (not for drawer - that's handled in index.tsx)
   const swipeGesture = useMemo(() => {
     return Gesture.Pan()
-      .enabled(!drawerOpen) // Disable when drawer is open
+      .enabled(!drawerOpen && activeTab !== "index") // Disable on home tab (drawer handles it) and when drawer is open
       .activeOffsetX([-24, 24])
       .failOffsetY([-18, 18])
       .onEnd((e) => {
@@ -42,9 +39,9 @@ export default function TabsLayout() {
         const idx = TAB_ORDER.indexOf(activeTab);
         if (idx === -1) return;
 
-        // Swipe right on Home tab -> open drawer
-        if (e.translationX > 0 && idx === 0) {
-          runOnJS(openDrawer)();
+        // Swipe right on first non-home tab -> go to home (where drawer is)
+        if (e.translationX > 0 && idx === 1) {
+          runOnJS(navigateTab)("index");
           return;
         }
 
@@ -55,7 +52,7 @@ export default function TabsLayout() {
           runOnJS(navigateTab)(nextTab);
         }
       });
-  }, [activeTab, drawerOpen, openDrawer]);
+  }, [activeTab, drawerOpen]);
 
   return (
     <View className="flex-1">
