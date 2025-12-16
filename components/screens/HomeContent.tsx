@@ -273,9 +273,12 @@ export default function HomeContent() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={styles.container}>
       <GestureDetector gesture={drawerGesture}>
       <Animated.View className="flex-1 pb-40" style={contentStyle}>
+        {/* Subtle gradient accent at top */}
+        <View style={styles.topAccent} />
+        
         <View className="pt-14 pb-5 px-6 flex-row items-start justify-between">
           <View className="flex-row items-start flex-1 pr-3 gap-3">
             <IconButton icon="menu-outline" label="Menu" onPress={openDrawerJS} />
@@ -304,10 +307,13 @@ export default function HomeContent() {
 
         <View className="px-6 gap-3">
           <Card variant="elevated">
-            <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
-              🍃 GRASS
-            </Text>
-            <View className="flex-row items-end justify-between mt-2">
+            <View className="flex-row items-center gap-2 mb-2">
+              <Text className="text-lg">🍃</Text>
+              <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
+                GRASS SCORE
+              </Text>
+            </View>
+            <View className="flex-row items-end justify-between">
               <Text className="text-text-primary text-4xl font-bold">
                 {profile?.elo_rating || 1000}
               </Text>
@@ -321,16 +327,16 @@ export default function HomeContent() {
 
           <Card variant="outlined">
             <View className="flex-row items-center justify-between">
-              <Text className="text-text-primary font-semibold">How it works</Text>
-              <View className="w-10 h-10 rounded-2xl bg-surface-light border border-border-subtle items-center justify-center">
-                <Ionicons name="flash-outline" size={18} color="#ef233c" />
+              <View className="flex-row items-center gap-2">
+                <Ionicons name="flash" size={16} color="#ef233c" />
+                <Text className="text-text-primary font-semibold">How it works</Text>
+              </View>
+              <View className="w-8 h-8 rounded-xl bg-primary/10 items-center justify-center">
+                <Ionicons name="help" size={16} color="#ef233c" />
               </View>
             </View>
-            <Text className="text-text-secondary mt-2">
+            <Text className="text-text-secondary mt-2 leading-5">
               Chat fast, read vibes, then guess real or AI when time runs out.
-            </Text>
-            <Text className="text-muted mt-2">
-              Tip: long-press a tab to open its bottom sheet.
             </Text>
           </Card>
         </View>
@@ -338,7 +344,7 @@ export default function HomeContent() {
         <View className="flex-1 justify-center px-6">
           {isSearching ? (
             <Card variant="elevated" className="items-center py-8">
-              <View className="w-16 h-16 rounded-2xl bg-surface-light border border-border-subtle items-center justify-center">
+              <View className="w-16 h-16 rounded-2xl bg-primary/10 items-center justify-center">
                 <ActivityIndicator size="small" color="#ef233c" />
               </View>
               <Text className="text-text-primary text-lg font-semibold mt-4">
@@ -359,15 +365,15 @@ export default function HomeContent() {
               </Pressable>
             </Card>
           ) : (
-            <View className="gap-3">
+            <View className="gap-4">
               <Button
                 onPress={handleFindMatch}
                 title="Find match"
                 variant="primary"
                 size="lg"
               />
-              <Text className="text-text-secondary text-center">
-                Pull up the bottom sheet for notifications.
+              <Text className="text-muted text-center text-sm">
+                Swipe up on bottom sheet for notifications
               </Text>
             </View>
           )}
@@ -375,13 +381,16 @@ export default function HomeContent() {
 
         <View className="px-6">
           <Card variant="outlined" className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-sm bg-primary mr-2" />
+            <View className="flex-row items-center gap-2">
+              <View className="w-2 h-2 rounded-full bg-green-500" />
               <Text className="text-text-secondary text-sm">
                 {Math.floor(Math.random() * 500) + 100} online
               </Text>
             </View>
-            <Text className="text-primary text-sm font-semibold">Touch more grass</Text>
+            <View className="flex-row items-center gap-1">
+              <Ionicons name="leaf" size={14} color="#ef233c" />
+              <Text className="text-primary text-sm font-semibold">Touch grass</Text>
+            </View>
           </Card>
         </View>
       </Animated.View>
@@ -482,6 +491,19 @@ export default function HomeContent() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff8fa', // Warm pink-white (Home)
+  },
+  topAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+    backgroundColor: '#fff0f3',
+    opacity: 0.6,
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "#14060f",
