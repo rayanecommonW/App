@@ -29,6 +29,7 @@ const SPRING_CONFIG = {
 interface TabPagerProps {
   currentIndex: number;
   onNavigate: (tabName: TabName) => void;
+  onIndexChange: (index: number) => void; // Called immediately when swipe commits
   children: ReactNode[];
 }
 
@@ -39,7 +40,7 @@ interface TabPagerProps {
  * On home tab (index 0): only handles LEFT swipes (to Explore)
  * HomeContent handles RIGHT swipes (for drawer)
  */
-export default function TabPager({ currentIndex, onNavigate, children }: TabPagerProps) {
+export default function TabPager({ currentIndex, onNavigate, onIndexChange, children }: TabPagerProps) {
   const translateX = useSharedValue(-currentIndex * SCREEN_WIDTH);
   const gestureStartX = useSharedValue(0);
   const targetIndexRef = useSharedValue(currentIndex);
@@ -56,10 +57,15 @@ export default function TabPager({ currentIndex, onNavigate, children }: TabPage
     translateX.value = withSpring(-currentIndex * SCREEN_WIDTH, SPRING_CONFIG);
   }, [currentIndex, translateX]);
 
-  // JS callback for navigation
+  // JS callback for navigation (called after animation completes - updates router)
   const handleNavigate = useCallback((index: number) => {
     onNavigate(getTabName(index));
   }, [onNavigate]);
+
+  // JS callback for immediate index change (called when swipe commits - updates UI)
+  const handleIndexChange = useCallback((index: number) => {
+    onIndexChange(index);
+  }, [onIndexChange]);
 
   // JS callback for gesture state
   const handleGestureActive = useCallback((active: boolean) => {
@@ -122,8 +128,11 @@ export default function TabPager({ currentIndex, onNavigate, children }: TabPage
       const newIndex = Math.max(0, Math.min(TOTAL_TABS - 1, idx + direction));
 
       if (newIndex !== idx) {
-        // Navigate to new index
+        // Update index IMMEDIATELY for UI sync (bottom tabs indicator)
         targetIndexRef.value = newIndex;
+        runOnJS(handleIndexChange)(newIndex);
+        
+        // Animate to new position, then update router
         translateX.value = withSpring(-newIndex * SCREEN_WIDTH, SPRING_CONFIG, (finished) => {
           if (finished) {
             runOnJS(handleNavigate)(newIndex);

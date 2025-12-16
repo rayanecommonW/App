@@ -4,12 +4,12 @@ import ExploreContent from "@/components/screens/ExploreContent";
 import HomeContent from "@/components/screens/HomeContent";
 import MatchesContent from "@/components/screens/MatchesContent";
 import ShopContent from "@/components/screens/ShopContent";
-import { getTabIndex, TAB_ORDER, type TabName, usePagerStore } from "@/lib/pagerStore";
+import { getTabIndex, getTabName, TAB_ORDER, type TabName, usePagerStore } from "@/lib/pagerStore";
 import { router, Slot, useSegments } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { View } from "react-native";
 
-function getActiveTabName(segments: string[]): TabName {
+function getActiveTabFromSegments(segments: string[]): TabName {
   const tabsIdx = segments.findIndex((s) => s === "(tabs)");
   if (tabsIdx === -1) return "index";
   const maybe = segments[tabsIdx + 1];
@@ -19,10 +19,13 @@ function getActiveTabName(segments: string[]): TabName {
 
 export default function TabsLayout() {
   const segments = useSegments();
-  const activeTab = useMemo(() => getActiveTabName(segments), [segments]);
-  const routerIndex = getTabIndex(activeTab);
+  const routerTab = useMemo(() => getActiveTabFromSegments(segments), [segments]);
+  const routerIndex = getTabIndex(routerTab);
   const { currentIndex, setIndex } = usePagerStore();
   const isNavigatingRef = useRef(false);
+
+  // Derive activeTab from store (for immediate UI updates) not router
+  const activeTab = getTabName(currentIndex);
 
   // Sync store with router on mount and when URL changes externally
   useEffect(() => {
@@ -31,17 +34,21 @@ export default function TabsLayout() {
     }
   }, [routerIndex, setIndex]);
 
-  // Handle navigation from pager (swipe gesture)
-  const handlePagerNavigate = useCallback((tab: TabName) => {
+  // Called immediately when swipe commits - updates store for instant UI feedback
+  const handleIndexChange = useCallback((index: number) => {
     isNavigatingRef.current = true;
-    setIndex(getTabIndex(tab));
+    setIndex(index);
+  }, [setIndex]);
+
+  // Called after pager animation completes - updates router for URL sync
+  const handlePagerNavigate = useCallback((tab: TabName) => {
     router.replace(tab === "index" ? "/(main)/(tabs)" : `/(main)/(tabs)/${tab}`);
     setTimeout(() => {
       isNavigatingRef.current = false;
     }, 100);
-  }, [setIndex]);
+  }, []);
 
-  // Handle navigation from bottom sheet tabs (tap)
+  // Handle navigation from bottom sheet tabs (tap) - immediate
   const handleBottomTabNavigate = useCallback((tab: TabName) => {
     isNavigatingRef.current = true;
     setIndex(getTabIndex(tab));
@@ -58,7 +65,11 @@ export default function TabsLayout() {
         <Slot />
       </View>
 
-      <TabPager currentIndex={currentIndex} onNavigate={handlePagerNavigate}>
+      <TabPager 
+        currentIndex={currentIndex} 
+        onNavigate={handlePagerNavigate}
+        onIndexChange={handleIndexChange}
+      >
         <HomeContent />
         <ExploreContent />
         <MatchesContent />
