@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, {
-  BottomSheetScrollView,
   BottomSheetView,
+  useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useMemo, useRef, type ComponentProps, type ReactNode } from "react";
@@ -16,13 +16,7 @@ const TAB_ICONS: Record<string, IoniconName> = {
   shop: "bag-outline",
 };
 
-function SheetSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function SheetSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View className="mb-4">
       <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px] mb-2">
@@ -33,22 +27,12 @@ function SheetSection({
   );
 }
 
-function Row({
-  title,
-  subtitle,
-  right,
-}: {
-  title: string;
-  subtitle?: string;
-  right?: ReactNode;
-}) {
+function Row({ title, subtitle, right }: { title: string; subtitle?: string; right?: ReactNode }) {
   return (
     <View className="bg-surface border border-border-subtle rounded-2xl px-4 py-3 flex-row items-center justify-between">
       <View className="flex-1 pr-3">
         <Text className="text-text-primary font-semibold">{title}</Text>
-        {subtitle ? (
-          <Text className="text-text-secondary text-sm mt-0.5">{subtitle}</Text>
-        ) : null}
+        {subtitle && <Text className="text-text-secondary text-sm mt-0.5">{subtitle}</Text>}
       </View>
       {right}
     </View>
@@ -67,16 +51,8 @@ function Panel({ routeName }: { routeName: string }) {
   if (routeName === "index") {
     return (
       <SheetSection title="Notifications">
-        <Row
-          title="Queue tip"
-          subtitle="Tap Find Match to start a ranked duel."
-          right={<Badge text="NEW" />}
-        />
-        <Row
-          title="Daily streak"
-          subtitle="Play 1 match today to keep your streak."
-          right={<Badge text="1/1" />}
-        />
+        <Row title="Queue tip" subtitle="Tap Find Match to start a ranked duel." right={<Badge text="NEW" />} />
+        <Row title="Daily streak" subtitle="Play 1 match today to keep your streak." right={<Badge text="1/1" />} />
         <Row title="Patch notes" subtitle="A cleaner, faster UI is landing." />
       </SheetSection>
     );
@@ -104,23 +80,14 @@ function Panel({ routeName }: { routeName: string }) {
 
   return (
     <SheetSection title="Plans">
-      <Row
-        title="TRUTH tier"
-        subtitle="Match with real humans only (demo)"
-        right={<Badge text="TOP" />}
-      />
+      <Row title="TRUTH tier" subtitle="Match with real humans only (demo)" right={<Badge text="TOP" />} />
       <Row title="Pro" subtitle="More matches + perks (demo)" />
       <Row title="Free" subtitle="Standard queue" right={<Badge text="CURRENT" />} />
     </SheetSection>
   );
 }
 
-export default function BottomSheetTabBar({
-  state,
-  descriptors,
-  navigation,
-  insets,
-}: BottomTabBarProps) {
+export default function BottomSheetTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const collapsedHeight = 92 + insets.bottom;
@@ -129,22 +96,31 @@ export default function BottomSheetTabBar({
   const activeRoute = state.routes[state.index];
   const activeRouteName = activeRoute?.name ?? "index";
 
+  const animationConfigs = useBottomSheetSpringConfigs({
+    damping: 18,
+    stiffness: 180,
+    mass: 0.8,
+    overshootClamping: false,
+  });
+
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       <BottomSheet
         ref={bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
+        animationConfigs={animationConfigs}
         enablePanDownToClose={false}
-        enableOverDrag={false}
-        keyboardBehavior="interactive"
-        keyboardBlurBehavior="restore"
+        enableOverDrag
+        overDragResistanceFactor={2.5}
+        enableContentPanningGesture
+        enableHandlePanningGesture
         style={styles.sheet}
-        backgroundStyle={styles.sheetBackground}
+        backgroundStyle={styles.background}
         handleStyle={styles.handle}
-        handleIndicatorStyle={styles.handleIndicator}
+        handleIndicatorStyle={styles.indicator}
       >
-        <BottomSheetView style={styles.navRowWrap}>
+        <BottomSheetView style={styles.navRow}>
           <View className="flex-row gap-2">
             {state.routes.map((route, index) => {
               const { options } = descriptors[route.key];
@@ -157,11 +133,9 @@ export default function BottomSheetTabBar({
                   target: route.key,
                   canPreventDefault: true,
                 });
-
                 if (!isFocused && !event.defaultPrevented) {
                   navigation.navigate(route.name);
                 }
-
                 bottomSheetRef.current?.snapToIndex(0);
               };
 
@@ -178,20 +152,12 @@ export default function BottomSheetTabBar({
                   onPress={onPress}
                   onLongPress={onLongPress}
                   className={`flex-1 px-2 py-3 rounded-2xl border items-center justify-center ${
-                    isFocused
-                      ? "bg-surface-strong border-border-subtle"
-                      : "bg-surface border-border-subtle"
+                    isFocused ? "bg-surface-strong border-border-subtle" : "bg-surface border-border-subtle"
                   }`}
                 >
-                  <Ionicons
-                    name={iconName}
-                    size={20}
-                    color={isFocused ? "#14060f" : "#a17b88"}
-                  />
+                  <Ionicons name={iconName} size={20} color={isFocused ? "#14060f" : "#a17b88"} />
                   <Text
-                    className={`text-[12px] font-semibold mt-1 ${
-                      isFocused ? "text-text-primary" : "text-muted"
-                    }`}
+                    className={`text-[12px] font-semibold mt-1 ${isFocused ? "text-text-primary" : "text-muted"}`}
                     numberOfLines={1}
                   >
                     {label}
@@ -202,15 +168,9 @@ export default function BottomSheetTabBar({
           </View>
         </BottomSheetView>
 
-        <BottomSheetScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.panelContent,
-            { paddingBottom: insets.bottom + 16 },
-          ]}
-        >
+        <BottomSheetView style={[styles.panel, { paddingBottom: insets.bottom + 16 }]}>
           <Panel routeName={activeRouteName} />
-        </BottomSheetScrollView>
+        </BottomSheetView>
       </BottomSheet>
     </View>
   );
@@ -220,7 +180,7 @@ const styles = StyleSheet.create({
   sheet: {
     marginHorizontal: 12,
   },
-  sheetBackground: {
+  background: {
     backgroundColor: "#ffffff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -236,20 +196,17 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 6,
   },
-  handleIndicator: {
+  indicator: {
     width: 44,
     height: 5,
     borderRadius: 6,
     backgroundColor: "#f6d9e1",
   },
-  navRowWrap: {
+  navRow: {
     paddingHorizontal: 12,
     paddingBottom: 10,
   },
-  panelContent: {
+  panel: {
     paddingHorizontal: 12,
-    paddingBottom: 16,
   },
 });
-
-
