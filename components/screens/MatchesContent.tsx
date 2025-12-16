@@ -2,13 +2,18 @@ import Card from "@/components/ui/Card";
 import ListItem from "@/components/ui/ListItem";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function MatchesContent() {
   return (
     <View style={styles.container}>
-      {/* Subtle gradient accent at top */}
-      <View style={styles.topAccent} />
+      {/* Coral/salmon gradient from top */}
+      <LinearGradient
+        colors={['#ffeaed', '#fff4f5', '#ffffff']}
+        locations={[0, 0.35, 1]}
+        style={StyleSheet.absoluteFill}
+      />
       
       <View className="pt-14 pb-5 px-6">
         <SectionHeader
@@ -84,15 +89,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 160,
-    backgroundColor: '#f6fef9', // Light mint-green (Matches)
-  },
-  topAccent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    backgroundColor: '#ecfdf5',
-    opacity: 0.7,
   },
 });

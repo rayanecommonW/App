@@ -8,6 +8,7 @@ import { useDrawerStore } from "@/lib/drawerStore";
 import { useAuthStore, useChatStore } from "@/lib/store";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
@@ -274,11 +275,15 @@ export default function HomeContent() {
 
   return (
     <View style={styles.container}>
+      {/* Smooth gradient background */}
+      <LinearGradient
+        colors={['#ffe4e9', '#fff8f9', '#ffffff']}
+        locations={[0, 0.4, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      
       <GestureDetector gesture={drawerGesture}>
       <Animated.View className="flex-1 pb-40" style={contentStyle}>
-        {/* Subtle gradient accent at top */}
-        <View style={styles.topAccent} />
-        
         <View className="pt-14 pb-5 px-6 flex-row items-start justify-between">
           <View className="flex-row items-start flex-1 pr-3 gap-3">
             <IconButton icon="menu-outline" label="Menu" onPress={openDrawerJS} />
@@ -493,16 +498,6 @@ export default function HomeContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff8fa', // Warm pink-white (Home)
-  },
-  topAccent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    backgroundColor: '#fff0f3',
-    opacity: 0.6,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

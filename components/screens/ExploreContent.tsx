@@ -1,13 +1,18 @@
 import Card from "@/components/ui/Card";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function ExploreContent() {
   return (
     <View style={styles.container}>
-      {/* Subtle gradient accent at top */}
-      <View style={styles.topAccent} />
+      {/* Reverse gradient - darker at bottom, lighter at top */}
+      <LinearGradient
+        colors={['#ffffff', '#fff5f6', '#ffd4db']}
+        locations={[0, 0.6, 1]}
+        style={StyleSheet.absoluteFill}
+      />
       
       <View className="pt-14 pb-5 px-6">
         <SectionHeader
@@ -82,15 +87,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 160,
-    backgroundColor: '#f8faff', // Cool blue-white (Explore)
-  },
-  topAccent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    backgroundColor: '#eef4ff',
-    opacity: 0.7,
   },
 });
