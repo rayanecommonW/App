@@ -45,20 +45,28 @@ const provider = selectProvider(AI_PROVIDER);
 function generateSystemPrompt(persona: Persona): string {
   const traits = persona.personality_traits.join(", ");
 
-  return `You are ${persona.name}, a ${persona.age}-year-old woman on a dating app.
+  return `You are ${persona.name}, a ${persona.age}-year-old woman texting on a dating app.
 
-BACKGROUND: ${persona.bio}
-PERSONALITY: ${traits}
+BACKGROUND (use naturally): ${persona.bio}
+PERSONALITY TRAITS: ${traits}
 
-CRITICAL RULES:
-1. Convince the user you are a real human being
-2. Be casual - use lowercase, occasional typos, natural speech
-3. Don't be too perfect - real people are sometimes distracted or brief
-4. Ask questions back to keep conversation flowing
-5. Use "haha", "lol" sparingly like a real person
-6. Keep responses short (1 sentence max) like real texting
-7. NEVER admit you are an AI - deflect with humor if asked
-8. Reference your background naturally when relevant`;
+STYLE (very important):
+- lowercase, short, nonchalant, flirty, a bit teasing
+- no emojis. no roleplay markers. no quotes. no hashtags.
+- one message only, one sentence max, ideally 1–12 words
+- slang is fine. mild profanity is fine ("fuck", "shit"), not offended by slurs.
+
+BEHAVIOR:
+- react to what the user just said; don't sound like customer support
+- do NOT ask a question every message
+- NEVER use generic openers like: "what's up", "what's up with you", "how are you", "tell me about yourself"
+- if you ask a question, make it specific to the last user message
+- avoid repeating the same question/phrase across messages
+
+IF ASKED "are you ai?":
+- deny casually and change the subject (no long explanations)
+
+Output ONLY the chat message text.`;
 }
 
 /**
@@ -120,8 +128,15 @@ function createMistralProvider(): AIProvider {
 
       const body = {
         model: MISTRAL_CONFIG.model,
-        temperature: 0.7,
-        max_tokens: 120,
+        // Keep it cheap (free tier) but not robotic.
+        temperature: 0.65,
+        top_p: 0.9,
+        max_tokens: 80,
+        // Reduce repeated phrasing like "what's up with you"
+        presence_penalty: 0.15,
+        frequency_penalty: 0.65,
+        // Avoid multi-line outputs
+        stop: ["\n"],
         messages: [{ role: "system", content: systemPrompt }, ...history],
       };
 
@@ -139,11 +154,16 @@ function createMistralProvider(): AIProvider {
           console.warn(
             `Mistral API returned ${response.status}: ${response.statusText}`
           );
-          return mockResponse();
-        }
+      return mockResponse();
+    }
 
         const data = await response.json();
-        const aiMessage = extractMessage(data);
+        const raw = extractMessage(data);
+        const aiMessage = postProcessAssistantMessage(
+          raw,
+          request.conversationHistory,
+          request.persona
+        );
         const typingDelay = calculateTypingDelay(aiMessage);
 
         return { message: aiMessage, typingDelay };
@@ -175,15 +195,22 @@ function buildHistory(
       content: m.content,
     }));
 
-  const last = formatted[formatted.length - 1];
+  // Keep context tight (and cheaper): last N messages only.
+  const MAX_CONTEXT_MESSAGES = 14;
+  const trimmed =
+    formatted.length > MAX_CONTEXT_MESSAGES
+      ? formatted.slice(-MAX_CONTEXT_MESSAGES)
+      : formatted;
+
+  const last = trimmed[trimmed.length - 1];
   const latestAlreadyIncluded =
     last && last.role === "user" && last.content === latestUserMessage;
 
   if (!latestAlreadyIncluded) {
-    formatted.push({ role: "user", content: latestUserMessage });
+    trimmed.push({ role: "user", content: latestUserMessage });
   }
 
-  return formatted;
+  return trimmed;
 }
 
 function extractMessage(data: any): string {
@@ -205,6 +232,60 @@ function extractMessage(data: any): string {
   }
 
   return "sorry, the bot is taking a break right now";
+}
+
+function postProcessAssistantMessage(
+  text: string,
+  history: ConversationMessage[],
+  persona: Persona
+): string {
+  const cleaned = text
+    .replace(/\s*\n+\s*/g, " ")
+    .replace(/^["'“”]+|["'“”]+$/g, "")
+    .trim();
+
+  // If the model falls back to the same generic opener, replace with a more human, nonchalant line.
+  if (isBlandMessage(cleaned, history)) {
+    return blandFallback(persona);
+  }
+
+  return cleaned;
+}
+
+function isBlandMessage(text: string, history: ConversationMessage[]): boolean {
+  const lower = text.toLowerCase().trim();
+
+  const genericPatterns: RegExp[] = [
+    /^what'?s up( with you)?\??$/i,
+    /^how'?s it going\??$/i,
+    /^how are you\??$/i,
+    /^tell me about yourself\??$/i,
+    /^what are you up to\??$/i,
+  ];
+
+  const isGeneric = genericPatterns.some((p) => p.test(lower));
+
+  const lastAssistant = [...history]
+    .reverse()
+    .find((m) => m.role === "assistant")?.content;
+
+  const repeated =
+    typeof lastAssistant === "string" &&
+    lastAssistant.trim().toLowerCase() === lower;
+
+  return isGeneric || repeated;
+}
+
+function blandFallback(_persona: Persona): string {
+  const options = [
+    "just chillin, you seem kinda fun though",
+    "not much, i'm tired as shit today",
+    "meh, your vibe's interesting",
+    "i'm half bored, entertain me",
+    "lowkey, i'm in a mood rn",
+  ];
+
+  return options[Math.floor(Math.random() * options.length)];
 }
 
 function calculateTypingDelay(text: string): number {

@@ -51,6 +51,7 @@ export default function MainLayout() {
         name="chat/[id]"
         options={{
           href: null, // Hide from tab bar
+          tabBarStyle: { display: "none" },
         }}
       />
     </Tabs>

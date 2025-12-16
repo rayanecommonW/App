@@ -47,6 +47,11 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasGreeted = useRef(false);
+  const scrollToBottom = useCallback((animated = true) => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated });
+    }, 0);
+  }, []);
 
   // Memoized greeting function
   const sendInitialGreeting = useCallback(async () => {
@@ -57,10 +62,10 @@ export default function ChatScreen() {
     await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1000));
     
     const greetings = [
-      `hey! i'm ${persona.name} 😊 how's it going?`,
-      `hi there! ${persona.name} here. what's up?`,
-      `heyy, nice to match with you! i'm ${persona.name}`,
-      `oh hey! i'm ${persona.name}. so tell me about yourself!`,
+      `hey, it's ${persona.name}`,
+      `${persona.name}. you look like trouble`,
+      `yo. ${persona.name} here`,
+      `hey. you're kinda my type`,
     ];
     
     const greeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -76,7 +81,15 @@ export default function ChatScreen() {
     setTyping(false);
     addMessage(greetingMessage);
     incrementMessageCount();
-  }, [persona, sessionId, setTyping, addMessage, incrementMessageCount]);
+    scrollToBottom(false);
+  }, [
+    persona,
+    sessionId,
+    setTyping,
+    addMessage,
+    incrementMessageCount,
+    scrollToBottom,
+  ]);
 
   // Start countdown timer - runs once on mount
   useEffect(() => {
@@ -105,12 +118,8 @@ export default function ChatScreen() {
 
   // Auto-scroll to bottom
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }
-  }, [messages.length, isTyping]);
+    if (messages.length > 0) scrollToBottom(true);
+  }, [messages.length, isTyping, scrollToBottom]);
 
   // Send initial AI greeting
   useEffect(() => {
@@ -275,65 +284,66 @@ export default function ChatScreen() {
         </Animated.View>
       )}
 
-      {/* Messages */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingBottom: 120,
-          paddingTop: 8,
-        }}
-        ListFooterComponent={isTyping ? <TypingIndicator /> : null}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* Messages + Input (flex layout so nothing renders behind/under anything) */}
+      <View className="flex-1">
+        <FlatList
+          ref={flatListRef}
+          style={{ flex: 1 }}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 8,
+            paddingBottom: 16,
+          }}
+          onContentSizeChange={() => scrollToBottom(true)}
+          ListFooterComponent={isTyping ? <TypingIndicator /> : null}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        />
 
-      {/* Input */}
-      <View className="absolute bottom-0 left-0 right-0 bg-background/95 border-t border-border-subtle px-4 pt-3 pb-8">
-        <View className="flex-row items-end space-x-3">
-          <View className="flex-1 bg-surface border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
-            <TextInput
-              className="text-text-primary text-base"
-              placeholder={
-                isSessionEnded ? "Chat ended" : "Type a message..."
-              }
-              placeholderTextColor="#a698b7"
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-              maxLength={500}
-              editable={!isSessionEnded}
-              onSubmitEditing={handleSend}
-            />
-          </View>
-          {inputText.trim() && !isSessionEnded ? (
-            <Pressable
-              onPress={handleSend}
-              disabled={isSending}
-              className="w-12 h-12 rounded-full overflow-hidden active:scale-95"
-            >
-              <LinearGradient
-                colors={["#ef233c", "#ff6b6b"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="flex-1 items-center justify-center"
-              >
-                <Ionicons name="send" size={20} color="#ffffff" />
-              </LinearGradient>
-            </Pressable>
-          ) : (
-            <View className="w-12 h-12 rounded-full bg-surface border border-border-subtle items-center justify-center">
-              <Ionicons name="send" size={20} color="#c7a9b2" />
+        <View className="bg-background/95 border-t border-border-subtle px-4 pt-3 pb-8">
+          <View className="flex-row items-end space-x-3">
+            <View className="flex-1 bg-surface border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
+              <TextInput
+                className="text-text-primary text-base"
+                placeholder={isSessionEnded ? "Chat ended" : "Type a message..."}
+                placeholderTextColor="#a698b7"
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+                maxLength={500}
+                editable={!isSessionEnded}
+              />
             </View>
-          )}
-        </View>
+            {inputText.trim() && !isSessionEnded ? (
+              <Pressable
+                onPress={handleSend}
+                disabled={isSending}
+                className="w-12 h-12 rounded-full overflow-hidden active:scale-95"
+              >
+                <LinearGradient
+                  colors={["#ef233c", "#ff6b6b"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  className="flex-1 items-center justify-center"
+                >
+                  <Ionicons name="send" size={20} color="#ffffff" />
+                </LinearGradient>
+              </Pressable>
+            ) : (
+              <View className="w-12 h-12 rounded-full bg-surface border border-border-subtle items-center justify-center">
+                <Ionicons name="send" size={20} color="#c7a9b2" />
+              </View>
+            )}
+          </View>
 
-        {/* Message count indicator */}
-        <Text className="text-muted text-xs text-center mt-2">
-          {messageCount}/{MAX_MESSAGES} messages
-        </Text>
+          {/* Message count indicator */}
+          <Text className="text-muted text-xs text-center mt-2">
+            {messageCount}/{MAX_MESSAGES} messages
+          </Text>
+        </View>
       </View>
 
       {/* Decision Modal */}

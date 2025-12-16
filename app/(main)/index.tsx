@@ -6,7 +6,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -28,6 +28,29 @@ export default function HomeScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState("");
   const [matchError, setMatchError] = useState<string | null>(null);
+  const searchRunIdRef = useRef(0);
+
+  const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+  const withTimeout = async <T,>(
+    promise: PromiseLike<T>,
+    ms: number,
+    label: string
+  ): Promise<T> => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error(`${label} timed out`));
+      }, ms);
+    });
+
+    try {
+      return await Promise.race([Promise.resolve(promise), timeoutPromise]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  };
 
   // Pulsing animation for the button
   const scale = useSharedValue(1);
@@ -50,6 +73,8 @@ export default function HomeScreen() {
 
   const handleFindMatch = async () => {
     if (isSearching) return; // guard double taps
+    const runId = ++searchRunIdRef.current;
+    const isStale = () => runId !== searchRunIdRef.current;
 
     setMatchError(null);
     setIsSearching(true);
@@ -70,16 +95,20 @@ export default function HomeScreen() {
       }
 
       // Simulate queue time for immersion
-      await new Promise((r) => setTimeout(r, 1500));
+      await sleep(900);
+      if (isStale()) return;
       setSearchStatus("Searching for opponent...");
-      await new Promise((r) => setTimeout(r, 2000));
+      await sleep(1200);
+      if (isStale()) return;
       setSearchStatus("Match found! Connecting...");
+      console.log("[match] fetching persona");
 
       // Get a random AI persona
-      const { data: personas, error: personaError } = await supabase
-        .from("ai_personas")
-        .select("*")
-        .limit(25);
+      const { data: personas, error: personaError } = await withTimeout(
+        supabase.from("ai_personas").select("*").limit(25),
+        12_000,
+        "Fetching personas"
+      );
 
       if (personaError || !personas?.length) {
         throw new Error("No personas available");
@@ -91,14 +120,19 @@ export default function HomeScreen() {
       console.log("[match] persona", randomPersona.id);
 
       // Create chat session
-      const { data: session, error: sessionError } = await supabase
-        .from("chat_sessions")
-        .insert({
-          user_id: userId,
-          ai_persona_id: randomPersona.id,
-        })
-        .select()
-        .single();
+      console.log("[match] creating session");
+      const { data: session, error: sessionError } = await withTimeout(
+        supabase
+          .from("chat_sessions")
+          .insert({
+            user_id: userId,
+            ai_persona_id: randomPersona.id,
+          })
+          .select()
+          .single(),
+        12_000,
+        "Creating session"
+      );
 
       if (sessionError) throw sessionError;
       console.log("[match] session created", session.id);
@@ -106,7 +140,8 @@ export default function HomeScreen() {
       // Initialize chat store
       startSession(session.id, randomPersona);
 
-      await new Promise((r) => setTimeout(r, 500));
+      await sleep(250);
+      if (isStale()) return;
 
       // Reset searching state before navigation
       setIsSearching(false);
@@ -128,6 +163,7 @@ export default function HomeScreen() {
   };
 
   const cancelSearch = () => {
+    searchRunIdRef.current += 1;
     setIsSearching(false);
     setSearchStatus("");
   };
