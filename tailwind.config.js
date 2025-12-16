@@ -30,10 +30,6 @@ module.exports = {
       borderRadius: {
         xl: "1.1rem",
         "2xl": "1.4rem",
-        "3xl": "1.9rem",
-      },
-      boxShadow: {
-        glow: "0 10px 30px rgba(255, 92, 124, 0.25)",
       },
     },
   },

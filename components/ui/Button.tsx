@@ -1,6 +1,5 @@
 import { shadowStyle } from "@/lib/shadow";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 
@@ -30,8 +29,8 @@ export default function Button({
 
   const sizeStyles = {
     sm: "py-2.5 px-4 rounded-2xl",
-    md: "py-3.5 px-6 rounded-2xl",
-    lg: "py-4 px-8 rounded-3xl",
+    md: "py-3 px-5 rounded-2xl",
+    lg: "py-4 px-6 rounded-2xl",
   };
 
   const textSizes = {
@@ -40,92 +39,46 @@ export default function Button({
     lg: "text-lg",
   };
 
-  const sharedPressable = `${disabled || loading ? "opacity-60" : "active:scale-[0.98]"}`;
-  const shadowGlow = shadowStyle({
-    color: "#e53955",
-    opacity: 0.2,
-    radius: 12,
-    offsetY: 8,
-    elevation: 6,
-  });
+  const sharedPressable = disabled || loading ? "opacity-60" : "active:opacity-90";
 
-  const renderLabel = (colorClass: string) =>
-    loading ? (
-      <ActivityIndicator color={colorClass === "text-background" ? "#ffffff" : "#ef233c"} />
-    ) : (
-      <Text className={`font-semibold ${textSizes[size]} ${colorClass}`}>{title}</Text>
-    );
+  const variantContainer = {
+    primary: "bg-primary border-primary",
+    secondary: "bg-surface border-border-subtle",
+    outline: "bg-transparent border-primary",
+    danger: "bg-danger border-danger",
+  }[variant];
 
-  if (variant === "primary") {
-    return (
-      <Pressable
-        onPress={handlePress}
-        disabled={disabled || loading}
-        className={`${sharedPressable} ${className}`}
-        style={shadowGlow}
-      >
-        <LinearGradient
-          colors={["#ef233c", "#ff5f6d"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className={`${sizeStyles[size]} flex-row items-center justify-center`}
-        >
-          {renderLabel("text-background")}
-        </LinearGradient>
-      </Pressable>
-    );
-  }
+  const variantText = {
+    primary: "text-background",
+    secondary: "text-text-primary",
+    outline: "text-primary",
+    danger: "text-background",
+  }[variant];
 
-  if (variant === "secondary") {
-    return (
-      <Pressable
-        onPress={handlePress}
-        disabled={disabled || loading}
-        className={`${sharedPressable} ${className}`}
-      >
-        <LinearGradient
-          colors={["#ffffff", "#fff5f7"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className={`${sizeStyles[size]} border border-border-subtle flex-row items-center justify-center`}
-        >
-          {renderLabel("text-text-primary")}
-        </LinearGradient>
-      </Pressable>
-    );
-  }
+  const variantShadow =
+    variant === "primary"
+      ? shadowStyle({
+          color: "#ef233c",
+          opacity: 0.16,
+          radius: 14,
+          offsetY: 10,
+          elevation: 6,
+        })
+      : undefined;
 
-  if (variant === "outline") {
-    return (
-      <Pressable
-        onPress={handlePress}
-        disabled={disabled || loading}
-        className={`${sizeStyles[size]} border-2 border-primary flex-row items-center justify-center bg-transparent ${sharedPressable} ${className}`}
-      >
-        {renderLabel("text-primary")}
-      </Pressable>
-    );
-  }
-
-  if (variant === "danger") {
-    return (
-      <Pressable
-        onPress={handlePress}
-        disabled={disabled || loading}
-        className={`${sharedPressable} ${className}`}
-      >
-        <LinearGradient
-          colors={["#ff6b6b", "#ef233c"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className={`${sizeStyles[size]} flex-row items-center justify-center`}
-        >
-          {renderLabel("text-background")}
-        </LinearGradient>
-      </Pressable>
-    );
-  }
-
-  return null;
+  return (
+    <Pressable
+      onPress={handlePress}
+      disabled={disabled || loading}
+      className={`${sizeStyles[size]} border items-center justify-center flex-row ${variantContainer} ${sharedPressable} ${className}`}
+      style={variantShadow}
+    >
+      {loading ? (
+        <ActivityIndicator color={variant === "secondary" ? "#ef233c" : "#ffffff"} />
+      ) : (
+        <Text className={`font-semibold ${textSizes[size]} ${variantText}`}>{title}</Text>
+      )}
+    </Pressable>
+  );
 }
 

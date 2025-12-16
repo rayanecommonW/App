@@ -23,16 +23,16 @@ export default function Card({
     variant === "elevated"
       ? shadowStyle({
           color: "#e53955",
-          opacity: 0.12,
-          radius: 18,
-          offsetY: 10,
+          opacity: 0.08,
+          radius: 14,
+          offsetY: 8,
           elevation: 10,
         })
       : undefined;
 
   return (
     <View
-      className={`rounded-3xl p-4 ${variants[variant]} ${className}`}
+      className={`rounded-2xl p-4 ${variants[variant]} ${className}`}
       style={elevatedStyle}
       {...props}
     >

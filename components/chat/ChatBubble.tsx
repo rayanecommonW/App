@@ -19,9 +19,9 @@ export default function ChatBubble({
       className={`max-w-[82%] mb-3 ${isUser ? "self-end" : "self-start"}`}
     >
       <View
-        className={`px-4 py-3 rounded-[22px] ${
+        className={`px-4 py-3 rounded-2xl ${
           isUser
-            ? "bg-primary shadow-glow"
+            ? "bg-primary"
             : "bg-surface border border-border-subtle/80"
         }`}
       >
@@ -51,22 +51,22 @@ export function TypingIndicator() {
       entering={FadeIn.duration(200)}
       className="self-start max-w-[82%] mb-3"
     >
-      <View className="bg-surface border border-border-subtle/80 rounded-[22px] px-4 py-3 flex-row items-center">
+      <View className="bg-surface border border-border-subtle/80 rounded-2xl px-4 py-3 flex-row items-center">
         <View className="flex-row space-x-1">
           <Animated.View
-            className="w-2 h-2 rounded-full bg-primary"
+            className="w-2 h-2 rounded-sm bg-primary"
             style={{
               opacity: 0.4,
             }}
           />
           <Animated.View
-            className="w-2 h-2 rounded-full bg-primary"
+            className="w-2 h-2 rounded-sm bg-primary"
             style={{
               opacity: 0.6,
             }}
           />
           <Animated.View
-            className="w-2 h-2 rounded-full bg-primary"
+            className="w-2 h-2 rounded-sm bg-primary"
             style={{
               opacity: 0.8,
             }}

@@ -1,8 +1,9 @@
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import { useAuthStore, useChatStore } from "@/lib/store";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -122,75 +123,66 @@ export default function DecisionModal({
             entering={FadeInDown.duration(500)}
             className="w-full max-w-sm"
           >
-            {/* Title */}
-            <View className="items-center mb-8">
-              <Text className="text-primary text-sm font-semibold tracking-widest mb-2">
-                TIME&apos;S UP
-              </Text>
-              <Text className="text-text-primary text-3xl font-bold text-center">
-                Make Your Call
-              </Text>
-              <Text className="text-text-secondary text-center mt-2">
-                Was your match a real person or an AI?
-              </Text>
-            </View>
+            <Card variant="elevated" className="p-5">
+              <View className="mb-5">
+                <Text className="text-text-secondary text-xs font-semibold tracking-[0.8px]">
+                  TIME’S UP
+                </Text>
+                <Text className="text-text-primary text-2xl font-bold mt-2">
+                  Make your call
+                </Text>
+                <Text className="text-text-secondary mt-2">
+                  Was your match a real person or an AI?
+                </Text>
+              </View>
 
-            {/* Buttons */}
-            <View className="space-y-4">
-              <Pressable
-                onPress={() => handleGuess("real")}
-                disabled={isProcessing}
-              >
-                <LinearGradient
-                  colors={["#ef233c", "#ff6b6b"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  className="py-5 rounded-3xl items-center shadow-glow"
+              <View className="gap-3">
+                <Pressable
+                  onPress={() => handleGuess("real")}
+                  disabled={isProcessing}
+                  className="bg-primary border border-primary rounded-2xl px-4 py-4 flex-row items-center justify-center gap-3 active:opacity-90"
                 >
-                  <View className="flex-row items-center space-x-3">
-                    <Ionicons name="person" size={24} color="#ffffff" />
-                    <Text className="text-background text-xl font-bold">
-                      REAL HUMAN
-                    </Text>
-                  </View>
-                </LinearGradient>
-              </Pressable>
+                  <Ionicons name="person-outline" size={20} color="#ffffff" />
+                  <Text className="text-background font-bold text-base">
+                    Real human
+                  </Text>
+                </Pressable>
 
-              <Pressable
-                onPress={() => handleGuess("ai")}
-                disabled={isProcessing}
-                className="mt-4"
-              >
-                <LinearGradient
-                  colors={["#fff5f7", "#ffffff"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  className="py-5 rounded-3xl items-center border border-border-subtle/60"
+                <Pressable
+                  onPress={() => handleGuess("ai")}
+                  disabled={isProcessing}
+                  className="bg-surface border border-border-subtle rounded-2xl px-4 py-4 flex-row items-center justify-center gap-3 active:opacity-90"
                 >
-                  <View className="flex-row items-center space-x-3">
-                    <Ionicons name="hardware-chip" size={24} color="#1b102b" />
-                    <Text className="text-text-primary text-xl font-bold">
-                      AI AGENT
-                    </Text>
-                  </View>
-                </LinearGradient>
-              </Pressable>
-            </View>
+                  <Ionicons
+                    name="hardware-chip-outline"
+                    size={20}
+                    color="#14060f"
+                  />
+                  <Text className="text-text-primary font-bold text-base">
+                    AI agent
+                  </Text>
+                </Pressable>
+              </View>
+            </Card>
           </Animated.View>
         )}
 
         {state === "revealing" && (
           <Animated.View
             entering={ZoomIn.duration(300)}
-            className="items-center"
+            className="w-full max-w-sm"
           >
-            <ActivityIndicator size="large" color="#ef233c" />
-            <Text className="text-text-primary text-xl font-bold mt-4">
-              Analyzing match...
-            </Text>
-            <Text className="text-text-secondary mt-2">
-              You guessed: {userGuess === "real" ? "HUMAN" : "AI"}
-            </Text>
+            <Card variant="elevated" className="items-center py-8">
+              <View className="w-16 h-16 rounded-2xl bg-surface-light border border-border-subtle items-center justify-center">
+                <ActivityIndicator size="small" color="#ef233c" />
+              </View>
+              <Text className="text-text-primary text-lg font-bold mt-4">
+                Analyzing...
+              </Text>
+              <Text className="text-text-secondary mt-2">
+                You guessed: {userGuess === "real" ? "Human" : "AI"}
+              </Text>
+            </Card>
           </Animated.View>
         )}
 
@@ -199,91 +191,78 @@ export default function DecisionModal({
             entering={FadeIn.duration(500)}
             className="w-full max-w-sm items-center"
           >
-            {/* Result Icon */}
-            <Animated.View
-              entering={ZoomIn.delay(200).duration(400)}
-              className={`w-24 h-24 rounded-full items-center justify-center mb-6 ${
-                wasCorrect ? "bg-primary/15" : "bg-danger/15"
-              }`}
-            >
-              <Ionicons
-                name={wasCorrect ? "checkmark-circle" : "close-circle"}
-                size={64}
-                color={wasCorrect ? "#ef233c" : "#d7263d"}
-              />
-            </Animated.View>
-
-            {/* Result Text */}
-            <Animated.View entering={FadeInUp.delay(400).duration(400)}>
-              <Text
-                className={`text-4xl font-bold text-center ${
-                  wasCorrect ? "text-primary" : "text-danger"
-                }`}
-              >
-                {wasCorrect ? "CORRECT!" : "WRONG!"}
-              </Text>
-
-              <Text className="text-text-secondary text-center mt-3">
-                Your match was an{" "}
-                <Text className="text-secondary font-bold">AI Agent</Text>
-              </Text>
-
-              {/* ELO Change */}
-              <View className="items-center mt-6">
-                <Text className="text-text-secondary text-sm">ELO CHANGE</Text>
-                <Text
-                  className={`text-3xl font-bold ${
-                    eloChange > 0 ? "text-primary" : "text-danger"
+            <Card variant="elevated" className="w-full">
+              <View className="items-center">
+                <Animated.View
+                  entering={ZoomIn.delay(200).duration(400)}
+                  className={`w-20 h-20 rounded-2xl items-center justify-center border ${
+                    wasCorrect
+                      ? "bg-surface-light border-border-subtle"
+                      : "bg-surface-light border-border-subtle"
                   }`}
                 >
-                  {eloChange > 0 ? "+" : ""}
-                  {eloChange}
-                </Text>
+                  <Ionicons
+                    name={wasCorrect ? "checkmark" : "close"}
+                    size={40}
+                    color={wasCorrect ? "#ef233c" : "#d7263d"}
+                  />
+                </Animated.View>
               </View>
 
-              {/* Upsell for incorrect guess */}
-              {!wasCorrect && (
-                <Animated.View
-                  entering={FadeInUp.delay(600)}
-                  className="mt-8 bg-surface-light rounded-3xl p-5 border border-warning/30"
+              <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+                <Text
+                  className={`text-3xl font-bold text-center mt-5 ${
+                    wasCorrect ? "text-text-primary" : "text-text-primary"
+                  }`}
                 >
-                  <Text className="text-warning font-semibold text-center">
-                    Fooled by the machine?
-                  </Text>
-                  <Text className="text-text-secondary text-center text-sm mt-2">
-                    Upgrade to TRUTH tier and never guess again. Match with 100%
-                    real humans.
-                  </Text>
-                  <Pressable className="mt-4">
-                    <LinearGradient
-                      colors={["#ef233c", "#ff6b6b"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      className="py-3 rounded-2xl items-center"
-                    >
-                      <Text className="text-background font-bold">
-                        UPGRADE NOW
-                      </Text>
-                    </LinearGradient>
-                  </Pressable>
-                </Animated.View>
-              )}
-            </Animated.View>
-
-            {/* Close Button */}
-            <Animated.View
-              entering={FadeIn.delay(800)}
-              className="mt-8 w-full"
-            >
-              <Pressable
-                onPress={handleClose}
-                className="bg-surface border border-border-subtle py-4 rounded-2xl items-center active:scale-[0.99]"
-              >
-                <Text className="text-text-primary font-semibold">
-                  Continue
+                  {wasCorrect ? "Correct" : "Wrong"}
                 </Text>
-              </Pressable>
-            </Animated.View>
+
+                <Text className="text-text-secondary text-center mt-3">
+                  Your match was an <Text className="font-bold">AI agent</Text>.
+                </Text>
+
+                <View className="items-center mt-6">
+                  <Text className="text-text-secondary text-xs font-semibold tracking-[0.6px]">
+                    ELO CHANGE
+                  </Text>
+                  <Text
+                    className={`text-3xl font-bold mt-1 ${
+                      eloChange > 0 ? "text-primary" : "text-danger"
+                    }`}
+                  >
+                    {eloChange > 0 ? "+" : ""}
+                    {eloChange}
+                  </Text>
+                </View>
+
+                {!wasCorrect && (
+                  <View className="mt-6 bg-surface-light rounded-2xl p-4 border border-border-subtle">
+                    <Text className="text-text-primary font-semibold text-center">
+                      Want real-only matches?
+                    </Text>
+                    <Text className="text-text-secondary text-center text-sm mt-2">
+                      TRUTH tier removes the guessing (demo).
+                    </Text>
+                    <Button
+                      onPress={() => {}}
+                      title="View plans"
+                      variant="primary"
+                      size="md"
+                      className="mt-4"
+                    />
+                  </View>
+                )}
+
+                <Button
+                  onPress={handleClose}
+                  title="Continue"
+                  variant="secondary"
+                  size="lg"
+                  className="mt-6"
+                />
+              </Animated.View>
+            </Card>
           </Animated.View>
         )}
       </View>

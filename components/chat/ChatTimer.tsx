@@ -25,7 +25,7 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
     <View className="items-center">
       <View className="flex-row items-center space-x-2">
         <View
-          className="w-3 h-3 rounded-full"
+          className="w-3 h-3 rounded-sm"
           style={{
             backgroundColor: getColor(),
             ...shadowStyle({
@@ -45,9 +45,9 @@ export default function ChatTimer({ timeRemaining, maxTime }: ChatTimerProps) {
       </View>
 
       {/* Progress Bar */}
-      <View className="w-32 h-1.5 bg-surface-light rounded-full mt-2 overflow-hidden">
+      <View className="w-32 h-1.5 bg-surface-light rounded-sm mt-2 overflow-hidden">
         <View
-          className="h-full rounded-full"
+          className="h-full rounded-sm"
           style={{
             width: `${progress * 100}%`,
             backgroundColor: getColor(),

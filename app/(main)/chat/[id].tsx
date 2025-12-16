@@ -1,13 +1,13 @@
 import ChatBubble, { TypingIndicator } from "@/components/chat/ChatBubble";
 import ChatTimer from "@/components/chat/ChatTimer";
 import DecisionModal from "@/components/DecisionModal";
+import Button from "@/components/ui/Button";
+import IconButton from "@/components/ui/IconButton";
 import { sendMessageLocal } from "@/lib/ai";
 import { ChatMessage } from "@/lib/database.types";
-import { shadowStyle } from "@/lib/shadow";
 import { useChatStore } from "@/lib/store";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -219,47 +219,26 @@ export default function ChatScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-background"
     >
-      <LinearGradient
-        colors={["#fff2f6", "#ffffff"]}
-        className="absolute inset-0"
-      />
-      <View className="absolute -right-16 -top-10 w-44 h-44 rounded-full bg-primary/10" />
-      <View className="absolute -left-16 bottom-28 w-40 h-40 rounded-full bg-primary-soft/25" />
-
       {/* Header */}
-      <View className="pt-14 pb-3 px-4">
-        <View
-          className="bg-surface rounded-3xl px-4 py-3 border border-border-subtle flex-row items-center justify-between"
-          style={shadowStyle({
-            color: "#ef233c",
-            opacity: 0.06,
-            radius: 10,
-            offsetY: 8,
-            elevation: 4,
-          })}
-        >
-          <Pressable
-            onPress={handleBack}
-            className="w-10 h-10 rounded-2xl bg-surface-light/90 border border-border-subtle items-center justify-center active:scale-95"
-          >
-            <Ionicons name="chevron-back" size={22} color="#ef233c" />
-          </Pressable>
-
-          <View className="items-center flex-1">
-            <Text className="text-text-primary font-semibold text-lg">
-              {persona?.name || "Match"}
-            </Text>
-            <ChatTimer timeRemaining={timeRemaining} maxTime={MAX_TIME} />
-          </View>
-
+      <View className="pt-14 pb-4 px-4 flex-row items-center justify-between">
+        <IconButton icon="chevron-back" label="Back" onPress={handleBack} />
+        <View className="items-center flex-1">
+          <Text className="text-text-primary font-semibold text-lg">
+            {persona?.name || "Match"}
+          </Text>
+          <ChatTimer timeRemaining={timeRemaining} maxTime={MAX_TIME} />
+        </View>
+        <View className="w-11">
           <Pressable
             onPress={handleSurrender}
             disabled={isSessionEnded}
-            className={`px-4 py-2 rounded-2xl border ${
-              isSessionEnded ? "border-border-subtle bg-surface-light" : "border-primary/30 bg-primary/10"
-            } active:scale-95`}
+            className={`px-3 py-2 rounded-2xl border ${
+              isSessionEnded
+                ? "border-border-subtle bg-surface"
+                : "border-border-subtle bg-surface-light"
+            } active:opacity-85`}
           >
-            <Text className="text-primary font-semibold text-sm">End</Text>
+            <Text className="text-text-primary font-semibold text-sm">End</Text>
           </Pressable>
         </View>
       </View>
@@ -273,14 +252,12 @@ export default function ChatScreen() {
           <Text className="text-text-primary text-xl font-bold mb-4">
             Session Ended
           </Text>
-          <Pressable
+          <Button
             onPress={() => setShowDecisionModal(true)}
-            className="bg-primary px-8 py-4 rounded-2xl shadow-glow active:scale-[0.98]"
-          >
-            <Text className="text-background font-bold text-lg">
-              Make Your Guess
-            </Text>
-          </Pressable>
+            title="Make your guess"
+            variant="primary"
+            size="lg"
+          />
         </Animated.View>
       )}
 
@@ -305,7 +282,7 @@ export default function ChatScreen() {
 
         <View className="bg-background/95 border-t border-border-subtle px-4 pt-3 pb-8">
           <View className="flex-row items-end space-x-3">
-            <View className="flex-1 bg-surface border border-border-subtle rounded-3xl px-4 py-3 max-h-32">
+            <View className="flex-1 bg-surface border border-border-subtle rounded-2xl px-4 py-3 max-h-32">
               <TextInput
                 className="text-text-primary text-base"
                 placeholder={isSessionEnded ? "Chat ended" : "Type a message..."}
@@ -321,19 +298,12 @@ export default function ChatScreen() {
               <Pressable
                 onPress={handleSend}
                 disabled={isSending}
-                className="w-12 h-12 rounded-full overflow-hidden active:scale-95"
+                className="w-12 h-12 rounded-2xl overflow-hidden active:opacity-85 bg-primary items-center justify-center"
               >
-                <LinearGradient
-                  colors={["#ef233c", "#ff6b6b"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  className="flex-1 items-center justify-center"
-                >
-                  <Ionicons name="send" size={20} color="#ffffff" />
-                </LinearGradient>
+                <Ionicons name="send" size={20} color="#ffffff" />
               </Pressable>
             ) : (
-              <View className="w-12 h-12 rounded-full bg-surface border border-border-subtle items-center justify-center">
+              <View className="w-12 h-12 rounded-2xl bg-surface border border-border-subtle items-center justify-center">
                 <Ionicons name="send" size={20} color="#c7a9b2" />
               </View>
             )}
@@ -352,7 +322,7 @@ export default function ChatScreen() {
         sessionId={sessionId!}
         onClose={() => {
           setShowDecisionModal(false);
-          router.replace("/(main)");
+          router.replace("/(main)/(tabs)");
         }}
       />
     </KeyboardAvoidingView>
