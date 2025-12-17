@@ -1,7 +1,7 @@
 import {
-    LiquidGlassContainerView,
-    LiquidGlassView,
-    isLiquidGlassSupported,
+  LiquidGlassContainerView,
+  LiquidGlassView,
+  isLiquidGlassSupported,
 } from "@callstack/liquid-glass";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,6 +9,34 @@ import React from "react";
 import { StyleSheet, View, type ColorValue, type ViewProps } from "react-native";
 
 export type GlassEffect = "clear" | "regular" | "none";
+
+export type AndroidGlassFallbackOptions = {
+  /**
+   * Background opacity for the fallback white fill (0..1).
+   * Defaults are derived from `effect`.
+   */
+  backgroundOpacity?: number;
+  /**
+   * Blur intensity for expo-blur (0..100).
+   * Defaults are derived from `effect`.
+   */
+  blurIntensity?: number;
+  /**
+   * Opacity applied to the tint overlay (0..1).
+   * Default: 0.25
+   */
+  tintOpacity?: number;
+  /**
+   * BlurView blur reduction factor (Android-only).
+   * Default: 2
+   */
+  blurReductionFactor?: number;
+  /**
+   * BlurView experimental blur method (Android-only).
+   * Default: "dimezisBlurView"
+   */
+  experimentalBlurMethod?: "none" | "dimezisBlurView";
+};
 
 export type GlassViewProps = ViewProps & {
   /**
@@ -31,6 +59,11 @@ export type GlassViewProps = ViewProps & {
    * Convenience border radius (applied along with `style`).
    */
   borderRadius?: number;
+  /**
+   * Android-only: tweak the glass fallback (blur + opacity).
+   * Ignored when native Liquid Glass is supported.
+   */
+  androidFallback?: AndroidGlassFallbackOptions;
 };
 
 export function GlassView({
@@ -38,6 +71,7 @@ export function GlassView({
   tintColor = "rgba(255,255,255,0.25)",
   interactive = false,
   borderRadius = 24,
+  androidFallback,
   style,
   children,
   ...rest
@@ -57,8 +91,14 @@ export function GlassView({
   }
 
   // Android / unsupported fallback (still "glass", without native refraction)
-  const fallbackOpacity = effect === "none" ? 0 : effect === "clear" ? 0.18 : 0.28;
-  const blurIntensity = effect === "none" ? 0 : effect === "clear" ? 55 : 80;
+  const defaultFallbackOpacity = effect === "none" ? 0 : effect === "clear" ? 0.18 : 0.28;
+  const defaultBlurIntensity = effect === "none" ? 0 : effect === "clear" ? 55 : 80;
+
+  const fallbackOpacity = effect === "none" ? 0 : (androidFallback?.backgroundOpacity ?? defaultFallbackOpacity);
+  const blurIntensity = effect === "none" ? 0 : (androidFallback?.blurIntensity ?? defaultBlurIntensity);
+  const tintOpacity = androidFallback?.tintOpacity ?? 0.25;
+  const blurReductionFactor = androidFallback?.blurReductionFactor ?? 2;
+  const experimentalBlurMethod = androidFallback?.experimentalBlurMethod ?? "dimezisBlurView";
   const tint =
     typeof tintColor === "string" ? tintColor : typeof tintColor === "number" ? undefined : undefined;
 
@@ -79,8 +119,8 @@ export function GlassView({
           pointerEvents="none"
           intensity={blurIntensity}
           // Blur is experimental on Android; enable it explicitly.
-          experimentalBlurMethod="dimezisBlurView"
-          blurReductionFactor={2}
+          experimentalBlurMethod={experimentalBlurMethod}
+          blurReductionFactor={blurReductionFactor}
           style={StyleSheet.absoluteFill}
         />
       ) : null}
@@ -117,7 +157,7 @@ export function GlassView({
             {
               borderRadius,
               backgroundColor: tint,
-              opacity: 0.25,
+              opacity: tintOpacity,
             },
           ]}
         />

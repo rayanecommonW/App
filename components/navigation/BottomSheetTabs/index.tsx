@@ -1,14 +1,13 @@
-import { GlassView } from "@/components/ui/GlassView";
 import BottomSheet, {
-    BottomSheetView,
-    useBottomSheetSpringConfigs,
+  BottomSheetView,
+  useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
 import { useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Panel, SheetBackground, TabButton } from "./components";
@@ -69,12 +68,7 @@ export default function BottomSheetTabs({
         <BottomSheetView style={styles.content}>
           {/* Nav row - visible when collapsed */}
           <Animated.View style={[styles.navRow, { paddingBottom: 14 + insets.bottom }, navRowStyle]}>
-            <GlassView
-              effect="clear"
-              tintColor="rgba(255, 255, 255, 0.18)"
-              borderRadius={26}
-              style={styles.navBar}
-            >
+            <View style={styles.navBar}>
               <View style={styles.tabsRow}>
                 {TABS.map((tab) => {
                   const isFocused = tab.name === activeTab;
@@ -92,7 +86,7 @@ export default function BottomSheetTabs({
                   );
                 })}
               </View>
-            </GlassView>
+            </View>
           </Animated.View>
 
           {/* Panel - visible when expanded */}

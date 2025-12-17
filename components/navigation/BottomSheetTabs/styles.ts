@@ -90,19 +90,6 @@ export const styles = StyleSheet.create({
     color: "#14060f",
     fontWeight: "700",
   },
-  activeIndicatorWrap: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 6,
-    alignItems: "center",
-  },
-  activeIndicator: {
-    width: 18,
-    height: 3,
-    borderRadius: 3,
-    backgroundColor: "rgba(20, 6, 15, 0.18)",
-  },
   panel: {
     flex: 1,
     paddingHorizontal: 12,

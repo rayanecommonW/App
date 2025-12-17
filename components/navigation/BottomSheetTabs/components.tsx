@@ -4,8 +4,8 @@ import SheetSection from "@/components/ui/SheetSection";
 import { Ionicons } from "@expo/vector-icons";
 import type { BottomSheetBackgroundProps } from "@gorhom/bottom-sheet";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
-import type { TabConfig, TabName } from "./constants";
+import { Platform, Pressable, Text, View } from "react-native";
+import { ANDROID_BOTTOM_SHEET_BORDER, ANDROID_LIQUID_GLASS_FALLBACK, type TabConfig, type TabName } from "./constants";
 import { styles } from "./styles";
 
 export function Badge({ text }: { text: string }) {
@@ -13,6 +13,7 @@ export function Badge({ text }: { text: string }) {
     <GlassView
       effect="clear"
       tintColor="rgba(255,255,255,0.22)"
+      androidFallback={ANDROID_LIQUID_GLASS_FALLBACK.badge}
       borderRadius={12}
       style={styles.badge}
     >
@@ -119,9 +120,19 @@ export function SheetBackground({ style }: BottomSheetBackgroundProps) {
   return (
     <GlassView
       effect="clear"
-      tintColor="rgba(255, 236, 244, 0.18)"
+      tintColor="rgba(255, 255, 255, 0.18)"
+      androidFallback={ANDROID_LIQUID_GLASS_FALLBACK.sheetBackground}
       borderRadius={28}
-      style={[style, styles.sheetBackground]}
+      style={[
+        style,
+        styles.sheetBackground,
+        Platform.OS === "android"
+          ? {
+              borderWidth: ANDROID_BOTTOM_SHEET_BORDER.width,
+              borderColor: ANDROID_BOTTOM_SHEET_BORDER.color,
+            }
+          : null,
+      ]}
     />
   );
 }
@@ -159,12 +170,6 @@ export function TabButton({
           {tab.label}
         </Text>
       </View>
-
-      {isFocused ? (
-        <View pointerEvents="none" style={styles.activeIndicatorWrap}>
-          <View style={styles.activeIndicator} />
-        </View>
-      ) : null}
     </Pressable>
   );
 }
