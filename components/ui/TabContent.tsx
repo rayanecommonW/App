@@ -1,4 +1,4 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { LinearGradient, type LinearGradientProps } from "expo-linear-gradient";
 import { type ReactNode } from "react";
 import { ScrollView, StyleSheet, View, type ViewStyle } from "react-native";
 
@@ -7,31 +7,33 @@ const BOTTOM_NAV_PADDING = 160;
 
 type GradientPreset = "pink" | "coral" | "cream" | "rose";
 
-const GRADIENT_PRESETS: Record<GradientPreset, { colors: string[]; locations: number[] }> = {
+type GradientConfig = Pick<LinearGradientProps, "colors" | "locations">;
+
+const GRADIENT_PRESETS = {
   pink: {
-    colors: ['#ffe4e9', '#fff8f9', '#ffffff'],
+    colors: ["#ffe4e9", "#fff8f9", "#ffffff"],
     locations: [0, 0.4, 1],
   },
   coral: {
-    colors: ['#ffeaed', '#fff4f5', '#ffffff'],
+    colors: ["#ffeaed", "#fff4f5", "#ffffff"],
     locations: [0, 0.35, 1],
   },
   cream: {
-    colors: ['#fff8e8', '#fffbf2', '#ffffff'],
+    colors: ["#fff8e8", "#fffbf2", "#ffffff"],
     locations: [0, 0.4, 1],
   },
   rose: {
-    colors: ['#ffffff', '#fff5f6', '#ffd4db'],
+    colors: ["#ffffff", "#fff5f6", "#ffd4db"],
     locations: [0, 0.6, 1],
   },
-};
+} as const satisfies Record<GradientPreset, GradientConfig>;
 
 interface TabContentProps {
   children: ReactNode;
   /** Whether content should scroll. Defaults to true */
   scrollable?: boolean;
   /** Gradient preset or custom colors. Pass false to disable gradient */
-  gradient?: GradientPreset | { colors: string[]; locations?: number[] } | false;
+  gradient?: GradientPreset | GradientConfig | false;
   /** Additional style for the content container */
   contentStyle?: ViewStyle;
   /** Override the bottom padding (for screens that need custom spacing) */
@@ -78,7 +80,7 @@ export default function TabContent({
       {gradientConfig && (
         <LinearGradient
           colors={gradientConfig.colors}
-          locations={gradientConfig.locations ?? [0, 0.5, 1]}
+          locations={gradientConfig.locations ?? undefined}
           style={StyleSheet.absoluteFill}
         />
       )}
