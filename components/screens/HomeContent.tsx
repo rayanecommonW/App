@@ -156,6 +156,44 @@ export default function HomeContent() {
       });
   }, [drawerProgress, gestureStartProgress, openDrawer, closeDrawer]);
 
+  // Gesture for overlay - allows dragging to close the drawer progressively
+  const overlayGesture = useMemo(() => {
+    return Gesture.Pan()
+      .activeOffsetX([-20, 20])
+      .failOffsetY([-15, 15])
+      .onStart(() => {
+        gestureStartProgress.value = drawerProgress.value;
+      })
+      .onUpdate((e) => {
+        // Only allow closing (leftward drag) when drawer is open
+        if (gestureStartProgress.value > 0.01) {
+          const dragProgress = e.translationX / DRAWER_WIDTH;
+          const newProgress = clamp(gestureStartProgress.value + dragProgress, 0, 1);
+          drawerProgress.value = newProgress;
+        }
+      })
+      .onEnd((e) => {
+        if (gestureStartProgress.value < 0.01) return;
+        
+        const currentProgress = drawerProgress.value;
+        const velocity = e.velocityX;
+
+        let shouldOpen: boolean;
+
+        if (Math.abs(velocity) > VELOCITY_THRESHOLD) {
+          shouldOpen = velocity > 0;
+        } else {
+          shouldOpen = currentProgress > OPEN_THRESHOLD;
+        }
+
+        if (shouldOpen) {
+          openDrawer();
+        } else {
+          closeDrawer();
+        }
+      });
+  }, [drawerProgress, gestureStartProgress, openDrawer, closeDrawer]);
+
   // Preferences (demo)
   const [lookingFor, setLookingFor] = useState<"Everyone" | "Women" | "Men">("Everyone");
   const [ageRange, setAgeRange] = useState<"18-25" | "26-35" | "36+">("26-35");
@@ -423,9 +461,11 @@ export default function HomeContent() {
       </Animated.View>
       </GestureDetector>
 
-      <Animated.View style={[styles.overlay, overlayStyle]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeDrawerJS} />
-      </Animated.View>
+      <GestureDetector gesture={overlayGesture}>
+        <Animated.View style={[styles.overlay, overlayStyle]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeDrawerJS} />
+        </Animated.View>
+      </GestureDetector>
 
       <GestureDetector gesture={drawerOpenGesture}>
         <Animated.View style={[styles.drawer, drawerStyle]}>

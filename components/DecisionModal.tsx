@@ -4,6 +4,7 @@ import { useAuthStore, useChatStore } from "@/lib/store";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -32,6 +33,7 @@ export default function DecisionModal({
   sessionId,
   onClose,
 }: DecisionModalProps) {
+  const router = useRouter();
   const { profile, setProfile } = useAuthStore();
   const { reset: resetChat } = useChatStore();
   const [state, setState] = useState<ResultState>("guessing");
@@ -135,7 +137,7 @@ export default function DecisionModal({
   };
 
   // Show upgrade prompt only if user guessed correctly AND it was an AI
-  const showUpgradePrompt = wasCorrect && actualMatch === "ai";
+  const showUpgradePrompt = actualMatch === "ai";
 
   return (
     <Modal
@@ -337,7 +339,10 @@ export default function DecisionModal({
                       TRUTH tier removes the guessing (demo).
                     </Text>
                     <Button
-                      onPress={() => {}}
+                      onPress={() => {
+                        handleClose();
+                        router.push("/shop");
+                      }}
                       title="View plans"
                       variant="primary"
                       size="md"

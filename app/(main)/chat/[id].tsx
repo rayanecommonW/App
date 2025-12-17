@@ -1,5 +1,6 @@
 import ChatBubble, { TypingIndicator } from "@/components/chat/ChatBubble";
 import ChatTimer from "@/components/chat/ChatTimer";
+import CoinFlipReveal from "@/components/chat/CoinFlipReveal";
 import DecisionModal from "@/components/DecisionModal";
 import Button from "@/components/ui/Button";
 import { sendMessageLocal } from "@/lib/ai";
@@ -23,6 +24,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const MAX_TIME = 60;
 const MAX_MESSAGES = 20;
 
+type StartsFirst = "user" | "match";
+
 export default function ChatScreen() {
   const { id: sessionId } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
@@ -44,9 +47,12 @@ export default function ChatScreen() {
 
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [startsFirst, setStartsFirst] = useState<StartsFirst | null>(null);
+  const [showCoinFlip, setShowCoinFlip] = useState(true);
   const flatListRef = useRef<FlatList>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const hasGreeted = useRef(false);
+  const inputRef = useRef<TextInput>(null);
+  const hasStarted = useRef(false);
 
   const scrollToBottom = useCallback((animated = true) => {
     setTimeout(() => {
@@ -58,34 +64,63 @@ export default function ChatScreen() {
     if (!persona || !sessionId) return;
     setTyping(true);
 
-    await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1000));
+    try {
+      // Let the AI generate its own opener
+      const { message: aiOpener, typingDelay } = await sendMessageLocal(
+        sessionId,
+        "", // Empty message - AI is starting the convo
+        persona.id,
+        [], // No history yet
+        persona
+      );
 
-    const greetings = [
-      `hey, it's ${persona.name}`,
-      `${persona.name}. you look like trouble`,
-      `yo. ${persona.name} here`,
-      `hey. you're kinda my type`,
-    ];
+      await new Promise((r) => setTimeout(r, typingDelay));
 
-    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+      const greetingMessage: ChatMessage = {
+        id: Date.now().toString(),
+        session_id: sessionId,
+        role: "assistant",
+        content: aiOpener,
+        created_at: new Date().toISOString(),
+      };
 
-    const greetingMessage: ChatMessage = {
-      id: Date.now().toString(),
-      session_id: sessionId,
-      role: "assistant",
-      content: greeting,
-      created_at: new Date().toISOString(),
-    };
-
-    setTyping(false);
-    addMessage(greetingMessage);
-    incrementMessageCount();
-    scrollToBottom(false);
+      setTyping(false);
+      addMessage(greetingMessage);
+      incrementMessageCount();
+      scrollToBottom(false);
+    } catch (error) {
+      console.error("Failed to generate AI opener:", error);
+      setTyping(false);
+    }
   }, [persona, sessionId, setTyping, addMessage, incrementMessageCount, scrollToBottom]);
 
-  // Timer
+  // Flip coin on mount to decide who starts
   useEffect(() => {
-    if (isSessionEnded) return;
+    if (startsFirst === null) {
+      const flip: StartsFirst = Math.random() < 0.5 ? "user" : "match";
+      setStartsFirst(flip);
+    }
+  }, [startsFirst]);
+
+  // Handle coin flip complete - start the chat
+  const handleCoinFlipComplete = useCallback(() => {
+    setShowCoinFlip(false);
+
+    if (startsFirst === "match" && !hasStarted.current) {
+      hasStarted.current = true;
+      sendInitialGreeting();
+    } else if (startsFirst === "user") {
+      hasStarted.current = true;
+      // Focus input for user to start
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [startsFirst, sendInitialGreeting]);
+
+  // Timer - only start after coin flip is done
+  useEffect(() => {
+    if (isSessionEnded || showCoinFlip) return;
 
     timerRef.current = setInterval(() => {
       setTimeRemaining((prev: number) => prev - 1);
@@ -94,7 +129,7 @@ export default function ChatScreen() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isSessionEnded, setTimeRemaining]);
+  }, [isSessionEnded, showCoinFlip, setTimeRemaining]);
 
   // End session check
   useEffect(() => {
@@ -108,14 +143,6 @@ export default function ChatScreen() {
   useEffect(() => {
     if (messages.length > 0) scrollToBottom(true);
   }, [messages.length, isTyping, scrollToBottom]);
-
-  // Initial greeting
-  useEffect(() => {
-    if (persona && !hasGreeted.current) {
-      hasGreeted.current = true;
-      sendInitialGreeting();
-    }
-  }, [persona, sendInitialGreeting]);
 
   const handleSend = async () => {
     if (!inputText.trim() || isSending || isSessionEnded || !persona) return;
@@ -282,8 +309,15 @@ export default function ChatScreen() {
           <View className="flex-row items-end gap-2">
             <View className="flex-1 bg-surface-light rounded-2xl px-4 min-h-[44px] max-h-28 justify-center">
               <TextInput
+                ref={inputRef}
                 className="text-text-primary text-base py-3"
-                placeholder={isSessionEnded ? "Chat ended" : "Message..."}
+                placeholder={
+                  isSessionEnded
+                    ? "Chat ended"
+                    : startsFirst === "user" && messages.length === 0
+                    ? "Break the ice..."
+                    : "Message..."
+                }
                 placeholderTextColor="#a17b88"
                 value={inputText}
                 onChangeText={setInputText}
@@ -329,6 +363,15 @@ export default function ChatScreen() {
           router.replace("/(main)/(tabs)");
         }}
       />
+
+      {/* Coin Flip Reveal */}
+      {showCoinFlip && startsFirst && (
+        <CoinFlipReveal
+          startsFirst={startsFirst}
+          matchName={persona?.name || "Match"}
+          onComplete={handleCoinFlipComplete}
+        />
+      )}
     </View>
   );
 }

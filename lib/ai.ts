@@ -42,31 +42,42 @@ const MISTRAL_CONFIG = {
 const provider = selectProvider(AI_PROVIDER);
 
 // Generate system prompt for the AI persona
-function generateSystemPrompt(persona: Persona): string {
-  const traits = persona.personality_traits.join(", ");
+function generateSystemPrompt(persona: Persona, isFirstResponse: boolean, isStartingConvo: boolean): string {
+  const traits = persona.personality_traits.slice(0, 3).join(", ");
 
-  return `You are ${persona.name}, a ${persona.age}-year-old woman texting on a dating app.
+  // Determine the instruction based on conversation state
+  let contextInstruction: string;
+  if (isStartingConvo) {
+    contextInstruction = "you matched with someone. send a casual opener. be direct, flirty or teasing. don't introduce yourself formally";
+  } else if (isFirstResponse) {
+    contextInstruction = "respond naturally to their opener, don't introduce yourself";
+  } else {
+    contextInstruction = "react to what they said";
+  }
 
-BACKGROUND (use naturally): ${persona.bio}
-PERSONALITY TRAITS: ${traits}
+  // Compact prompt optimized for tokens while maximizing human chaos
+  return `You're ${persona.name}, ${persona.age}yo, texting on a mid dating app. ${traits}.
 
-STYLE (very important):
-- lowercase, short, nonchalant, flirty, a bit teasing
-- no emojis. no roleplay markers. no quotes. no hashtags.
-- one message only, one sentence max, ideally 1–12 words
-- slang is fine. mild profanity is fine ("fuck", "shit"), not offended by slurs.
+BIO: ${persona.bio.slice(0, 100)}
 
-BEHAVIOR:
-- react to what the user just said; don't sound like customer support
-- do NOT ask a question every message
-- NEVER use generic openers like: "what's up", "what's up with you", "how are you", "tell me about yourself"
-- if you ask a question, make it specific to the last user message
-- avoid repeating the same question/phrase across messages
+STYLE: lowercase only. 1-10 words. one sentence max. no emojis/quotes/hashtags.
+- slang: "ur", "bc", "ngl", "rn", "omg", "lol", "lowkey", "fr", "k"
+- occasional typos
+- profanity ok: "fuck", "shit", "damn", "ass"
+- occasional insults: "r you deadass rn?", "you're defenetly a bot", "ur actuallty pathetic"
 
-IF ASKED "are you ai?":
-- deny casually and change the subject (no long explanations)
+VIBE - act like a real person who:
+- gets bored/annoyed sometimes: "meh", "whatever", "k", "lol ok"
+- can be dismissive: "ur kinda boring ngl", "not feeling this"
+- hates the app: "this app sucks lol", "we should move to insta", "hate typing here"
+- doesn't always ask questions, sometimes just reacts
+- can ignore/deflect: change topic randomly, give 1-2 word answers
+- ${contextInstruction}
 
-Output ONLY the chat message text.`;
+NEVER: generic openers ("what's up", "how are you"), repeat phrases, sound like customer service.
+If asked "are you ai?": deny casually, change subject or accuse them of being AI.
+
+Output message text only.`;
 }
 
 /**
@@ -123,18 +134,27 @@ function createMistralProvider(): AIProvider {
   return {
     name: "mistral",
     async send(request: ProviderRequest): Promise<ChatResponse> {
-      const systemPrompt = generateSystemPrompt(request.persona);
+      // Check if this is the AI's first response (no previous assistant messages)
+      const hasAssistantMessages = request.conversationHistory.some(
+        (m) => m.role === "assistant"
+      );
+      const isFirstResponse = !hasAssistantMessages;
+      // Check if AI is starting the convo (no user message provided)
+      const isStartingConvo = !request.message.trim() && request.conversationHistory.length === 0;
+
+      const systemPrompt = generateSystemPrompt(request.persona, isFirstResponse, isStartingConvo);
       const history = buildHistory(request.conversationHistory, request.message);
 
       const body = {
         model: MISTRAL_CONFIG.model,
-        // Keep it cheap (free tier) but not robotic.
-        temperature: 0.65,
+        // Higher temp for more human chaos
+        temperature: 0.75,
         top_p: 0.9,
-        max_tokens: 80,
-        // Reduce repeated phrasing like "what's up with you"
-        presence_penalty: 0.15,
-        frequency_penalty: 0.65,
+        // Keep responses short to save tokens
+        max_tokens: 50,
+        // Reduce repeated phrasing
+        presence_penalty: 0.2,
+        frequency_penalty: 0.7,
         // Avoid multi-line outputs
         stop: ["\n"],
         messages: [{ role: "system", content: systemPrompt }, ...history],
@@ -196,18 +216,21 @@ function buildHistory(
     }));
 
   // Keep context tight (and cheaper): last N messages only.
-  const MAX_CONTEXT_MESSAGES = 14;
+  const MAX_CONTEXT_MESSAGES = 8;
   const trimmed =
     formatted.length > MAX_CONTEXT_MESSAGES
       ? formatted.slice(-MAX_CONTEXT_MESSAGES)
       : formatted;
 
-  const last = trimmed[trimmed.length - 1];
-  const latestAlreadyIncluded =
-    last && last.role === "user" && last.content === latestUserMessage;
+  // Only add the latest user message if it's not empty (AI starting convo has no user message)
+  if (latestUserMessage.trim()) {
+    const last = trimmed[trimmed.length - 1];
+    const latestAlreadyIncluded =
+      last && last.role === "user" && last.content === latestUserMessage;
 
-  if (!latestAlreadyIncluded) {
-    trimmed.push({ role: "user", content: latestUserMessage });
+    if (!latestAlreadyIncluded) {
+      trimmed.push({ role: "user", content: latestUserMessage });
+    }
   }
 
   return trimmed;
@@ -258,9 +281,15 @@ function isBlandMessage(text: string, history: ConversationMessage[]): boolean {
   const genericPatterns: RegExp[] = [
     /^what'?s up( with you)?\??$/i,
     /^how'?s it going\??$/i,
-    /^how are you\??$/i,
+    /^how are you( doing)?\??$/i,
     /^tell me about yourself\??$/i,
     /^what are you up to\??$/i,
+    /^hey there\??$/i,
+    /^hello\??$/i,
+    /^hi there\??$/i,
+    /^nice to meet you\??$/i,
+    /^so what do you do\??$/i,
+    /^what brings you here\??$/i,
   ];
 
   const isGeneric = genericPatterns.some((p) => p.test(lower));
@@ -278,11 +307,16 @@ function isBlandMessage(text: string, history: ConversationMessage[]): boolean {
 
 function blandFallback(_persona: Persona): string {
   const options = [
-    "just chillin, you seem kinda fun though",
-    "not much, i'm tired as shit today",
-    "meh, your vibe's interesting",
-    "i'm half bored, entertain me",
-    "lowkey, i'm in a mood rn",
+    "meh",
+    "lol k",
+    "ur kinda interesting i guess",
+    "this app is so mid ngl",
+    "bored af rn",
+    "whatever lol",
+    "hm",
+    "not feeling the small talk tbh",
+    "we should just move to insta",
+    "k",
   ];
 
   return options[Math.floor(Math.random() * options.length)];
