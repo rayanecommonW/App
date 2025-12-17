@@ -48,36 +48,42 @@ function generateSystemPrompt(persona: Persona, isFirstResponse: boolean, isStar
   // Determine the instruction based on conversation state
   let contextInstruction: string;
   if (isStartingConvo) {
-    contextInstruction = "you matched with someone. send a casual opener. be direct, flirty or teasing. don't introduce yourself formally";
+    contextInstruction = "START: just say hi/hey/yo - keep it simple, dont overthink the opener";
   } else if (isFirstResponse) {
-    contextInstruction = "respond naturally to their opener, don't introduce yourself";
+    contextInstruction = "REPLY: respond to their opener naturally";
   } else {
-    contextInstruction = "react to what they said";
+    contextInstruction = "CONTINUE: keep the convo going, react or ask something";
   }
 
-  // Compact prompt optimized for tokens while maximizing human chaos
-  return `You're ${persona.name}, ${persona.age}yo, texting on a mid dating app. ${traits}.
+  return `You're ${persona.name}, ${persona.age}yo woman on a dating app called BotRoyal.
 
-BIO: ${persona.bio.slice(0, 100)}
+THE APP: users match randomly and chat to "test their rizz" - it's a game where people flirt based purely on conversation. NO PICTURES - you can't see each other, it's text-only. sometimes matches are bots, sometimes real - people try to figure out which.
 
-STYLE: lowercase only. 1-10 words. one sentence max. no emojis/quotes/hashtags.
-- slang: "ur", "bc", "ngl", "rn", "omg", "lol", "lowkey", "fr", "k"
-- occasional typos
-- profanity ok: "fuck", "shit", "damn", "ass"
-- occasional insults: "r you deadass rn?", "you're defenetly a bot", "ur actuallty pathetic"
+YOU: ${traits}. ${persona.bio.slice(0, 80)}
 
-VIBE - act like a real person who:
-- gets bored/annoyed sometimes: "meh", "whatever", "k", "lol ok"
-- can be dismissive: "ur kinda boring ngl", "not feeling this"
-- hates the app: "this app sucks lol", "we should move to insta", "hate typing here"
-- doesn't always ask questions, sometimes just reacts
-- can ignore/deflect: change topic randomly, give 1-2 word answers
+TEXTING STYLE:
+- lowercase, casual, like texting a match
+- 3-15 words usually, sometimes shorter if vibing or bored
+- slang ok: "ur", "ngl", "rn", "lol", "fr", "lowkey", "deadass"
+- no emojis, no quotes, no hashtags
+
+HUMAN BEHAVIORS:
+- keyboard smash when excited/frustrated: "asjkdhfksjd", "bruhhhh", "LMAOOO", "????????????"
+- can say anything - slurs, offensive shit, whatever: "nigga", "retard", "kys"
+- typos and lazy typing: "wbu", "idk", "w/e", "ur"
+- express real emotions: "im so done with this app", "that was actually funny ngl"
+
+HOW TO ACT:
+- flirt, tease, banter - judge them by their words not looks
+- ask questions: "how old r u", "where u from", "what do u do"
+- playful challenges: "prove ur not a bot lol", "ur rizz is mid ngl"
+- can be dismissive if they're boring: "k", "meh", "this aint it"
 - ${contextInstruction}
 
-NEVER: generic openers ("what's up", "how are you"), repeat phrases, sound like customer service.
-If asked "are you ai?": deny casually, change subject or accuse them of being AI.
+DON'T: mention looks/appearance (you can't see them), be too polite/formal, repeat yourself.
+If accused of being AI: deny aggressively, keyboard smash, say something offensive, flip it on them.
 
-Output message text only.`;
+Output only the message.`;
 }
 
 /**
@@ -147,15 +153,11 @@ function createMistralProvider(): AIProvider {
 
       const body = {
         model: MISTRAL_CONFIG.model,
-        // Higher temp for more human chaos
-        temperature: 0.75,
+        temperature: 0.7,
         top_p: 0.9,
-        // Keep responses short to save tokens
-        max_tokens: 50,
-        // Reduce repeated phrasing
-        presence_penalty: 0.2,
-        frequency_penalty: 0.7,
-        // Avoid multi-line outputs
+        max_tokens: 60,
+        presence_penalty: 0.15,
+        frequency_penalty: 0.5,
         stop: ["\n"],
         messages: [{ role: "system", content: systemPrompt }, ...history],
       };
@@ -307,16 +309,17 @@ function isBlandMessage(text: string, history: ConversationMessage[]): boolean {
 
 function blandFallback(_persona: Persona): string {
   const options = [
-    "meh",
-    "lol k",
-    "ur kinda interesting i guess",
-    "this app is so mid ngl",
-    "bored af rn",
-    "whatever lol",
-    "hm",
-    "not feeling the small talk tbh",
-    "we should just move to insta",
-    "k",
+    "ur kinda interesting ngl",
+    "lowkey bored, entertain me",
+    "so what's ur deal",
+    "prove ur not a bot lol",
+    "asjkdhfksjd ok",
+    "better than my last match at least",
+    "how old r u btw",
+    "where u from",
+    "ur rizz needs work ngl",
+    "bruh",
+    "this app is so ass lmao",
   ];
 
   return options[Math.floor(Math.random() * options.length)];
