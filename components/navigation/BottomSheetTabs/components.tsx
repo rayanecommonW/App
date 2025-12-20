@@ -5,8 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 import type { BottomSheetBackgroundProps } from "@gorhom/bottom-sheet";
 import React from "react";
 import { Platform, Pressable, Text, View } from "react-native";
-import { ANDROID_BOTTOM_SHEET_BORDER, ANDROID_LIQUID_GLASS_FALLBACK, type TabConfig, type TabName } from "./constants";
+import type { TabConfig, TabName } from "./constants";
 import { styles } from "./styles";
+import { ANDROID_BOTTOM_SHEET_BORDER, ANDROID_LIQUID_GLASS_FALLBACK, BOTTOM_SHEET_TABS_SHEET_RADIUS } from "./ui";
 
 export function Badge({ text }: { text: string }) {
   return (
@@ -122,7 +123,7 @@ export function SheetBackground({ style }: BottomSheetBackgroundProps) {
       effect="clear"
       tintColor="rgba(255, 255, 255, 0.18)"
       androidFallback={ANDROID_LIQUID_GLASS_FALLBACK.sheetBackground}
-      borderRadius={28}
+      borderRadius={BOTTOM_SHEET_TABS_SHEET_RADIUS}
       style={[
         style,
         styles.sheetBackground,

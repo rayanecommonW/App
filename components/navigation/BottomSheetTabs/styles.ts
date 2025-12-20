@@ -1,4 +1,11 @@
 import { StyleSheet } from "react-native";
+import {
+  ACTIVE_TAB_BLOB_COLOR,
+  ACTIVE_TAB_BLOB_INSET_Y,
+  ACTIVE_TAB_BLOB_RADIUS,
+  TAB_BUTTON_PADDING_HORIZONTAL,
+  TAB_BUTTON_PADDING_VERTICAL,
+} from "./ui";
 
 export const styles = StyleSheet.create({
   container: {
@@ -46,19 +53,36 @@ export const styles = StyleSheet.create({
   tabsRow: {
     flexDirection: "row",
     alignItems: "center",
+    // Keep tabs spread across the full width (prevents any left-clumping).
     justifyContent: "space-between",
     flex: 1,
     width: "100%",
+    position: "relative",
+  },
+  tabSlot: {
+    flex: 1,
+    minWidth: 0,
+  },
+  activeBlob: {
+    position: "absolute",
+    top: ACTIVE_TAB_BLOB_INSET_Y,
+    bottom: ACTIVE_TAB_BLOB_INSET_Y,
+    borderRadius: ACTIVE_TAB_BLOB_RADIUS,
+    backgroundColor: ACTIVE_TAB_BLOB_COLOR,
+    zIndex: 0,
   },
   tabButton: {
     flex: 1,
+    // Ensure equal widths regardless of label length (helps blob alignment).
+    flexBasis: 0,
     minWidth: 0,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 6,
+    paddingVertical: TAB_BUTTON_PADDING_VERTICAL,
+    paddingHorizontal: TAB_BUTTON_PADDING_HORIZONTAL,
     position: "relative",
     backgroundColor: "transparent",
+    zIndex: 1,
   },
   tabButtonFocused: {
     // No background/border; focused state is handled by color + indicator
